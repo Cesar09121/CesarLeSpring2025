@@ -1,37 +1,37 @@
 body{
     font-family: Arial, sans-serif;
     background-color: rgb(168, 235, 212);
-    margin:0;
-    padding:0;
+    margin: 0;
+    padding: 0;
 }
 .navbar{
     position: fixed;
-    width:100%;
+    width: 100%;
     display: flex;
     background-color: green;
     justify-content: flex-start;
     border-radius: 10px 10px 0 0;
     padding: 10px 0;
-    top:0;
-    left:0;
+    top: 0;
+    left: 0;
     z-index: 1000;
 }
 .nav-container{
-    display:flex;
+    display: flex;
     align-items: center;
-    gap:5px;
+    gap: 5px;
     padding-left: 10px;
 }
 .dropdown-container{
     position: relative;
-    display:inline-block;
+    display: inline-block;
     text-align: left;
 }
 .dropdown{
     color:black;
     font-size: 16px;
     cursor: pointer;
-    background-color:transparent;
+    background-color: transparent;
     text-decoration: none;
     display: inline-block;
     padding: 10px 20px;
@@ -45,7 +45,7 @@ body{
     background-color:rgb(8, 186, 65);
 }
 .dropdown-container:hover .menu{
-    display:block;
+    display: block;
 }
 .menu{
     display: none;
@@ -62,17 +62,31 @@ body{
     color: rgb(4, 90, 119);
     padding: 12px 15px;
     text-decoration: none;
-    display:block;
+    display: block;
     font-size: 16px;
+    cursor: pointer;
     text-align: left;
     width: 100%;
     box-sizing: border-box;
 }
-.menu a:hover{
-    background-color: rgb(8, 186, 65);
+.message{
+    padding: 100px 20px 20px;
+    max-width: 800px;
+    margin:auto;
 }
-.dropdown-container a:focus{
-    outline: none;
+.instruction{
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 5px solid green;
+}
+.extracredit{
+    background-color: white;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 5px solid yellow;
 }
 
 
