@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulma Todo</title>
     <link rel="stylesheet" href="bulma/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     
     <style>
 body {
@@ -53,6 +54,24 @@ div{
 .navbar-dropdown .navbar-item.is-active {
     background-color: #d3d3d3 !important; 
     color: green !important; 
+}
+.fa{
+    padding: 20px;
+    font-size: 30px;
+    text-align: center;
+    text-decoration: none;
+    display: flexbox;
+}
+.fa-twitter {
+    background:white;
+    color: black;
+}
+.fa-download {
+    color: white;
+}
+.fa:hover {
+  opacity: 0.7;
+  background-color:grey;
 }
 .menu {
     background-color: transparent !important; 
@@ -135,7 +154,7 @@ div{
 .input, .textarea, .select select {
     background-color: #ffffff !important;
     border: 1px solid #ddd !important;
-    color: #d0c7c7 !important; 
+    color: black !important; 
 }
 .tabs li:hover,
 .tabs li.is-active:hover {
@@ -221,8 +240,8 @@ label, .checkbox, .radio {
             </div>
 
             <div class="navbar-end">
-                <a class="button is-dark">Tweet</a>
-                <a class="button is-light">Download</a>
+                <a href="#" class="fa fa-twitter">Tweet</a>
+                <a href="#" class="fa fa-download">Download</a>
             </div>
         </div>
     </nav>
