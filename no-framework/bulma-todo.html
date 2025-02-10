@@ -5,11 +5,195 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulma Todo</title>
     <link rel="stylesheet" href="bulma/css/bulma.min.css">
+    
+    <style>
+body {
+    background-color: #ffffff !important; 
+}
+div{
+    display:block;
+}
+.menu {
+    background: white !important; 
+    border-radius: 8px !important; 
+    padding: 10px 15px !important; 
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important; 
+}
+.menu-list a {
+    background: transparent !important; 
+    color: #333 !important; 
+    padding: 8px 12px !important; 
+    border-radius: 6px !important; 
+    display: block; 
+}
+.menu-list a.is-active {
+    background: #5B73E8 !important; 
+    color: white !important;
+}
+.menu-list a:hover {
+    background: #f5f5f5 !important; 
+}
+.section {
+        padding: 3rem 3rem;
+    }
+.navbar {
+    background-color: #00D1B2 !important; 
+}
+.navbar-item,
+.navbar-dropdown a {
+    background-color: transparent !important;
+    color: white!important; 
+}
+
+.navbar-item:hover,
+.navbar-dropdown a:hover {
+    background-color: #d3d3d3 !important; 
+    color: green !important; 
+}
+.navbar-dropdown .navbar-item.is-active {
+    background-color: #d3d3d3 !important; 
+    color: green !important; 
+}
+.menu {
+    background-color: transparent !important; 
+}
+.menu-list a {
+    color: #000000 !important; 
+}
+.menu-list a.is-active {
+    background-color: #5B73E8 !important; 
+    color: white !important;
+}
+
+.tabs ul {
+    border-bottom: 2px solid #ddd !important;
+}
+.tabs li a {
+    color: #000 !important;
+}
+.tabs li.is-active a {
+    color: #5B73E8 !important;
+    border-bottom: 2px solid #5B73E8 !important;
+}
+
+.card {
+    border-radius: 10px !important; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important; 
+    background: white !important; 
+}
+
+.card-header {
+    background: white !important;
+    border-bottom: 1px solid #ddd !important;
+    padding: 12px 16px !important;
+}
+
+.card-footer {
+    border-top: 1px solid #ddd !important;
+    background: white !important;
+}
+
+.card-footer-item {
+    text-align: center;
+    font-weight: 500;
+    color: #5B73E8 !important; 
+    padding: 10px 12px !important;
+}
+.card-footer-item:hover {
+    background-color: #f5f5f5 !important; 
+}
+.message.is-primary {
+    background-color: #e0f7fa !important; 
+    color: #004d40 !important; 
+}
+
+.message .message-header {
+    background-color: #00c4b4 !important; 
+    color: white !important;
+}
+
+.message .message-body {
+    background-color: #e0f7fa !important; 
+    color: #004d40 !important;
+}
+
+.message .progress {
+    background-color: #e0e0e0 !important; 
+    color: #26a69a !important; 
+}
+.progress::-webkit-progress-bar {
+    background-color: #ffffff !important; 
+}
+
+.progress::-webkit-progress-value {
+    background-color: #26a69a !important;
+}
+
+.progress {
+    background-color: #ffffff !important;
+}
+.input, .textarea, .select select {
+    background-color: #ffffff !important;
+    border: 1px solid #ddd !important;
+    color: #d0c7c7 !important; 
+}
+.tabs li:hover,
+.tabs li.is-active:hover {
+    background-color: #d3d3d3 !important;
+    color: black !important;
+}
+
+.panel-block:hover {
+    background-color: #d3d3d3 !important;
+}
+
+.tabs li.is-active {
+    background-color: #e0e0e0 !important;
+    color: black !important;
+}
+.input.is-danger, .textarea.is-danger {
+    background-color: #ffffff !important;
+    border-color: #ff3860 !important;
+}
+.input.is-success {
+    background-color: #ffffff !important;
+    border-color: #23d160 !important;
+}
+
+.button.is-link {
+    background-color: #5B73E8 !important; 
+    border-color: #5B73E8 !important;
+    color: white !important;
+}
+.button.is-light {
+    background-color: #f5f5f5 !important; 
+    color: #000 !important;
+}
+
+.progress.is-success {
+    background-color: #D0F0D0 !important; 
+}
+
+.box {
+    background-color: #ffffff !important;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+label, .checkbox, .radio {
+    color: black !important;
+}
+.tabs li a:hover,
+.tabs li.is-active a {
+    background-color: #d3d3d3 !important;
+    color: black !important;
+}
+.menu-label {
+    color: rgb(142, 135, 135) !important;
+}
+    </style>
 </head>
 <body>
-
-    <!-- Navbar -->
-    <nav class="navbar is-primary">
+    <nav class="navbar">
         <div class="navbar-brand">
             <a class="navbar-item"><strong>BULMA</strong></a>
             <a class="navbar-burger" role="button">
@@ -21,14 +205,18 @@
             <div class="navbar-start">
                 <a class="navbar-item">Home</a>
                 <div class="navbar-item has-dropdown is-hoverable">
-                    <a class="navbar-link">Docs</a>
+                    <a class="navbar-link" style ="color: white;">Docs</a>
                     <div class="navbar-dropdown">
                         <a class="navbar-item">Overview</a>
                         <a class="navbar-item">Modifiers</a>
                         <a class="navbar-item">Columns</a>
                         <a class="navbar-item">Layout</a>
                         <a class="navbar-item">Form</a>
+                        <hr class="navbar-divider">
+                        <a class="navbar-item">Elements</a>
+                        <a class="navbar-item">Components</a>
                     </div>
+                    
                 </div>
             </div>
 
@@ -38,17 +226,15 @@
             </div>
         </div>
     </nav>
-
-    <!-- Main Section -->
+ 
     <section class="section">
         <div class="container">
             <div class="columns">
 
-                <!-- Left Panel -->
                 <div class="column is-one-quarter">
                     <div class="card">
                         <header class="card-header">
-                            <p class="card-header-title">Component</p>
+                            <p class="card-header-title" style="color:black">Component</p>
                         </header>
                         <div class="card-content">
                             <div class="content">
@@ -66,10 +252,37 @@
                     </div>
                 </div>
 
-                <!-- Middle Panel -->
+                
                 <div class="column is-half">
                     <article class="panel">
-                        <p class="panel-heading">Current</p>
+                        <div class="tabs is-boxed">
+                            <ul>
+                                <li class="is-active">
+                                    <a>
+                                        <span class="icon"><i class="fas fa-calendar-check"></i></span>
+                                        <span>Current</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span class="icon"><i class="fas fa-check-square"></i></span>
+                                        <span>Completed</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span class="icon"><i class="fas fa-calendar-alt"></i></span>
+                                        <span>Upcoming</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a>
+                                        <span class="icon"><i class="fas fa-list"></i></span>
+                                        <span>All</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="panel-block">
                             <input class="input" type="text" placeholder="New Task" disabled>
                         </div>
@@ -80,20 +293,19 @@
                         <label class="panel-block"><input type="checkbox"> Add a .gitignore file</label>
                     </article>
 
-                    <!-- Message Box -->
                     <article class="message is-primary">
                         <div class="message-header">
                             <p>Make a Github account</p>
                             <button class="delete"></button>
                         </div>
                         <div class="message-body">
-                            Go to <a href="https://github.com">github.com</a> and create an account.
-                            This is where we will be putting all of our code for this class.
+                            <p>Go to <a href="https://github.com">github.com</a> and create an account.</p>
+                            <p>That's where you'll be able to share your work with the world.. thats where we will be putting all of our code for this class.</p>
                             <progress class="progress is-success" value="60" max="100">60%</progress>
                         </div>
                     </article>
 
-                    <!-- Form -->
+                    
                     <div class="box">
                         <div class="field">
                             <label class="label">Name</label>
@@ -101,7 +313,7 @@
                                 <input class="input" type="text" placeholder="Text input">
                             </div>
                         </div>
-
+                    
                         <div class="field">
                             <label class="label">Username</label>
                             <div class="control has-icons-left has-icons-right">
@@ -111,7 +323,7 @@
                             </div>
                             <p class="help is-success">This username is available</p>
                         </div>
-
+                    
                         <div class="field">
                             <label class="label">Email</label>
                             <div class="control has-icons-left has-icons-right">
@@ -121,7 +333,7 @@
                             </div>
                             <p class="help is-danger">This email is invalid</p>
                         </div>
-
+                    
                         <div class="field">
                             <label class="label">Subject</label>
                             <div class="control">
@@ -133,14 +345,14 @@
                                 </div>
                             </div>
                         </div>
-
+                    
                         <div class="field">
                             <label class="label">Message</label>
                             <div class="control">
                                 <textarea class="textarea"></textarea>
                             </div>
                         </div>
-
+                    
                         <div class="field">
                             <div class="control">
                                 <label class="checkbox">
@@ -148,7 +360,19 @@
                                 </label>
                             </div>
                         </div>
-
+                    
+                       
+                        <div class="field">
+                            <div class="control">
+                                <label class="radio">
+                                    <input type="radio" name="question" checked> Yes
+                                </label>
+                                <label class="radio">
+                                    <input type="radio" name="question"> No
+                                </label>
+                            </div>
+                        </div>
+                    
                         <div class="field is-grouped">
                             <div class="control"><button class="button is-link">Submit</button></div>
                             <div class="control"><button class="button is-light">Cancel</button></div>
@@ -156,8 +380,10 @@
                     </div>
                 </div>
 
-                <!-- Right Panel -->
+               
                 <div class="column is-one-quarter">
+                    <p class="title is-3" style="color:black">Table of contents</p>
+                    <p class="subtitle is-5" style="color:black">Intra-page navigation</p>
                     <aside class="menu">
                         <p class="menu-label">General</p>
                         <ul class="menu-list">
@@ -167,9 +393,19 @@
                         <p class="menu-label">Administration</p>
                         <ul class="menu-list">
                             <li><a>Team Settings</a></li>
-                            <li><a class="is-active">Manage Your Team</a></li>
-                            <li><a>Invitations</a></li>
+                            <li><a class="is-active">Manage Your Team</a>
+                                <ul>
+                                    <li><a>Members</a></li>
+                                    <li><a>Plugins</a></li>
+                                    <li><a>Add a member</a></li>
+                                </ul>
+                            </li>
+                            <li><a>Invitations</a>
+                            <li><a>Cloud Storage Environment Settings</a></li>
+                            <li><a>Authentication</a></li>
+                            
                         </ul>
+
                         <p class="menu-label">Transactions</p>
                         <ul class="menu-list">
                             <li><a>Payments</a></li>
