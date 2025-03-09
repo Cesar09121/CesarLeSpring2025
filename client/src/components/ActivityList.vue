@@ -70,7 +70,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   showActions: true
 })
-
+const { activities, showActions } = props
 const emit = defineEmits<{
   (e: 'edit', id: number): void;
   (e: 'delete', id: number): void;

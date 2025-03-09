@@ -76,7 +76,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-
+  const { users } = props
 const emit = defineEmits<{
   (e: 'edit', id: number): void;
   (e: 'delete', id: number): void;

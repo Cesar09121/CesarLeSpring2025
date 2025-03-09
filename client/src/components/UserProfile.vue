@@ -122,7 +122,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuth, User } from '../models/user'
-import { useActivities, ActivityStats } from '../models/activity'
+import { useActivities } from '../models/activity'
 
 interface Props {
   userId?: number;
