@@ -1,0 +1,94 @@
+###
+## Testing API Endpoints
+
+########################
+# Auth Controller
+########################
+
+### Login Test
+POST http://localhost:3000/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "username": "cle20",
+    "password": "cesarle"
+}
+
+
+### Logout Test
+POST http://localhost:3000/api/v1/auth/logout
+
+########################
+# Users Controller
+########################
+
+### Get All Users
+GET http://localhost:3000/api/v1/user
+
+
+########################
+# Activities Controller
+########################
+
+### Get All Activities
+GET http://localhost:3000/api/v1/activity
+
+
+
+
+### Create New User
+POST http://localhost:3000/api/v1/user
+Content-Type: application/json
+
+{
+    "username": "pattyle2",
+    "password": "password123",
+    "name": "Patty Le",
+    "role": "user"
+}
+
+### Update User
+PATCH http://localhost:3000/api/v1/user/1
+Content-Type: application/json
+
+{
+    "name": "pattyle2",
+    "password": "1234cesar"
+}
+
+### Delete User
+DELETE http://localhost:3000/api/v1/user/1
+
+### Create New Activity
+POST http://localhost:3000/api/v1/activitity
+Content-Type: application/json
+
+{
+    "user_id": 1,
+    "type": "Run",
+    "distance": 5.0,
+    "distance_unit": "km",
+    "duration": 30,
+    "date": "2025-02-25",
+    "location": {
+        "lat": 41.7459793,
+        "lng": -74.082801
+    }
+}
+
+
+### Update Activity
+PATCH http://localhost:3000/api/v1/activity/1
+Content-Type: application/json
+
+{
+    "type": "Walk",
+    "distance": 3.0,
+    "distance_unit": "km",
+    "duration": 45
+}
+
+### Delete Activity
+DELETE http://localhost:3000/api/v1/activity/1
+
+

@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,vuejs,node,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,vuejs,node,windows
-
+node_modules
+.env
 ### Node ###
 # Logs
 logs

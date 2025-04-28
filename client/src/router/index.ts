@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { useAuth } from '../models/user'
 import HomePage from '../pages/HomePage.vue'
 import LoginPage from '../pages/LoginPage.vue'
+import RegisterPage from '@/pages/RegisterPage.vue'
 import ActivityPage from '../pages/ActivityPage.vue'
 import FriendsPage from '../pages/FriendsPage.vue'
 import StatisticsPage from '../pages/StatisticPage.vue'
@@ -19,6 +20,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'login',
     component: LoginPage,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: RegisterPage,
     meta: { requiresAuth: false }
   },
   {
@@ -60,6 +67,7 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   const { isLoggedIn, currentUser } = useAuth()
+  
   if (to.meta.requiresAuth && !isLoggedIn.value) {
     next({ name: 'login' })
   }

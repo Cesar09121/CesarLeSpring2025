@@ -3,7 +3,7 @@
     <section class="hero is-info welcome is-small mb-4">
       <div class="hero-body">
         <div class="container">
-          <h1 class="title">Welcome back, {{ currentUser?.name }}!</h1>
+          <h1 class="title">Hello, {{ currentUser?.name }}!</h1>
         </div>
       </div>
     </section>

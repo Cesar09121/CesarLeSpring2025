@@ -29,13 +29,14 @@
     </div>
     <div class="field">
       <div class="control">
-        <button class="button is-primary is-fullwidth">
-          Log in
+        <button class="button is-primary is-fullwidth" :disabled="isLoading">
+          {{ isLoading ? 'Logging in...' : 'Log in' }}
         </button>
       </div>
     </div>
     <div class="has-text-centered mt-4">
-      <button type="button" class="button is-text is-small" @click="showCredentials = !showCredentials">
+      <button type="button" class="button is-text is-small"
+        @click="showCredentials = !showCredentials">
         {{ showCredentials ? 'Hide demo accounts' : 'Show demo accounts' }}
       </button>
       
@@ -51,6 +52,15 @@
         </ul>
       </div>
     </div>
+    <div class="has-text-centered mt-4">
+      <p class="mb-2">Don't have an account?</p>
+      <router-link
+        to="/register"
+        class="button is-link is-light"
+      >
+        Register Now
+      </router-link>
+    </div>
   </form>
 </template>
 
@@ -61,22 +71,33 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const { login } = useAuth()
-
 const username = ref('')
 const password = ref('')
 const error = ref('')
 const showCredentials = ref(false)
+const isLoading = ref(false)
 
-const handleLogin = () => {
-  const success = login(username.value, password.value)
+const handleLogin = async () => {
+  error.value = ''
+  isLoading.value = true
   
-  if (success) {
-    router.push('/')
-  } else {
-    error.value = 'Invalid username or password'
+  try {
+    const success = await login(username.value, password.value)
+    if (success) {
+      router.push('/')
+    } else {
+      error.value = 'Invalid username or password'
+      setTimeout(() => {
+        error.value = ''
+      }, 3000)
+    }
+  } catch (err) {
+    error.value = 'An error occurred during login'
     setTimeout(() => {
       error.value = ''
     }, 3000)
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
@@ -84,6 +105,9 @@ const handleLogin = () => {
 <style scoped>
 .mt-2 {
   margin-top: 0.5rem;
+}
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 .mt-4 {
   margin-top: 1.5rem;

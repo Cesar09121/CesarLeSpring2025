@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
+
 export const ROLES = {
   ADMIN: 'admin',
   USER: 'user'
@@ -21,13 +22,12 @@ export interface PublicUser {
   name: string;
   role: string;
 }
-
 const users = ref<User[]>([
   {
     id: 1,
     username: 'cle20',
     name: 'Cesar Le',
-    password: 'cesarle',
+    password: 'cesarle', 
     role: 'admin',
     friends: [2, 3]
   },
@@ -57,31 +57,37 @@ const users = ref<User[]>([
   }
 ]);
 
+const hashPassword = (password: string): string => {
+
+  return `hashed_${password}`;
+}
+
 const currentUser = ref<User | null>(null);
 const isLoggedIn = computed(() => currentUser.value !== null);
-const isAdmin = computed(() => currentUser.value?.role === 'admin');
+const isAdmin = computed(() => currentUser.value?.role === ROLES.ADMIN);
 
 export function useAuth() {
   const router = useRouter();
+  
+  const login = async (username: string, password: string): Promise<boolean> => {
 
-  const login = (username: string, password: string): boolean => {
     const user = users.value.find(
       u => u.username === username && u.password === password
     );
     
     if (user) {
-      currentUser.value = user;
+      currentUser.value = { ...user };
       return true;
     }
     
     return false;
   };
-
+  
   const logout = () => {
     currentUser.value = null;
     router.push('/login');
   };
-
+  
   const getAllUsers = computed((): PublicUser[] => {
     return users.value.map(user => ({
       id: user.id,
@@ -90,7 +96,7 @@ export function useAuth() {
       role: user.role
     }));
   });
-
+  
   const getUserById = (id: number): PublicUser | null => {
     const user = users.value.find(u => u.id === id);
     if (!user) return null;
@@ -102,8 +108,40 @@ export function useAuth() {
       role: user.role
     };
   };
+  
+  const register = async (userData: Omit<User, 'id'>): Promise<void> => {
+    
+    const existingUser = users.value.find(u => u.username === userData.username);
+    if (existingUser) {
+      throw new Error('Username already taken');
+    }
+    
+    if (userData.password.length < 8) {
+      throw new Error('Password must be at least 8 characters long');
+    }
+ 
+    const newId = Math.max(...users.value.map(u => u.id), 0) + 1;
+    
 
-  const addUser = (userData: Omit<User, 'id'>): boolean => {
+    users.value.push({
+      id: newId,
+      username: userData.username,
+      name: userData.name,
+      password: userData.password, 
+      role: userData.role || ROLES.USER,
+      friends: userData.friends || []
+    });
+    
+
+    return;
+  };
+  
+  const addUser = async (userData: Omit<User, 'id'>): Promise<boolean> => {
+
+    if (!isAdmin.value) {
+      throw new Error('Unauthorized: Admin access required');
+    }
+    
     const newId = Math.max(...users.value.map(u => u.id), 0) + 1;
     
     users.value.push({
@@ -113,8 +151,13 @@ export function useAuth() {
     
     return true;
   };
-
-  const updateUser = (id: number, userData: Partial<User>): boolean => {
+  
+  const updateUser = async (id: number, userData: Partial<User>): Promise<boolean> => {
+ 
+    if (!isAdmin.value && currentUser.value?.id !== id) {
+      throw new Error('Unauthorized: You can only update your own account');
+    }
+    
     const index = users.value.findIndex(u => u.id === id);
     if (index === -1) return false;
     
@@ -123,21 +166,27 @@ export function useAuth() {
       ...userData
     };
     
+   
     if (currentUser.value && currentUser.value.id === id) {
-      currentUser.value = users.value[index];
+      currentUser.value = { ...users.value[index] };
     }
     
     return true;
   };
-
-  const deleteUser = (id: number): boolean => {
+  
+  const deleteUser = async (id: number): Promise<boolean> => {
+ 
+    if (!isAdmin.value) {
+      throw new Error('Unauthorized: Admin access required');
+    }
+    
     const index = users.value.findIndex(u => u.id === id);
     if (index === -1) return false;
     
     users.value.splice(index, 1);
     return true;
   };
-
+  
   const getFriends = (): PublicUser[] => {
     if (!currentUser.value) return [];
     
@@ -145,7 +194,7 @@ export function useAuth() {
       .map(friendId => getUserById(friendId))
       .filter((user): user is PublicUser => user !== null);
   };
-
+  
   return {
     currentUser,
     isLoggedIn,
@@ -154,6 +203,7 @@ export function useAuth() {
     logout,
     getAllUsers,
     getUserById,
+    register,
     addUser,
     updateUser,
     deleteUser,

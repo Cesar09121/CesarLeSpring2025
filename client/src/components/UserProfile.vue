@@ -102,8 +102,8 @@
             </div>
             <div class="field is-grouped mt-4">
               <div class="control is-expanded">
-                <button type="submit" class="button is-primary is-fullwidth">
-                  Save Changes
+                <button type="submit" class="button is-primary is-fullwidth" :disabled="isLoading">
+                  {{ isLoading ? 'Saving...' : 'Save Changes' }}
                 </button>
               </div>
               <div class="control">
@@ -150,6 +150,7 @@ const stats = computed(() => {
 })
 
 const isEditing = ref(false)
+const isLoading = ref(false)
 
 interface ProfileForm {
   name: string;
@@ -171,43 +172,52 @@ onMounted(() => {
   }
 })
 
-const updateProfile = () => {
-  if (!user.value) return
+const updateProfile = async () => {
+  if (!user.value) return;
+  isLoading.value = true;
 
-  const userData: Partial<User> = {
-    name: form.value.name,
-    username: form.value.username
-  }
-
-  if (form.value.password) {
-    userData.password = form.value.password
-  }
-
-  if (updateUser(user.value.id, userData)) {
-    isEditing.value = false
+  try {
+    const userData: Partial<User> = {
+      name: form.value.name,
+      username: form.value.username
+    }
+    
+    if (form.value.password) {
+      userData.password = form.value.password
+    }
+    
+    // Use await here to fix the TypeScript error
+    const success = await updateUser(user.value.id, userData);
+    if (success) {
+      isEditing.value = false;
+    }
+  } catch (error: any) {
+    console.error('Error updating profile:', error.message);
+    // You might want to add error handling here
+  } finally {
+    isLoading.value = false;
   }
 }
 
 const cancelEdit = () => {
-  isEditing.value = false
-  
+  isEditing.value = false;
   if (user.value) {
-    form.value.name = user.value.name
-    form.value.username = user.value.username
-    form.value.password = ''
+    form.value.name = user.value.name;
+    form.value.username = user.value.username;
+    form.value.password = '';
   }
 }
 
 const formatDuration = (minutes: number): string => {
-  const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
   
   if (hours === 0) {
-    return `${minutes} min`
+    return `${minutes} min`;
   } else if (remainingMinutes === 0) {
-    return `${hours} hr`
+    return `${hours} hr`;
   } else {
-    return `${hours}h ${remainingMinutes}m`
+    return `${hours}h ${remainingMinutes}m`;
   }
 }
 </script>

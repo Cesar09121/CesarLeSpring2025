@@ -49,8 +49,8 @@
     </div>
     <div class="field is-grouped mt-4">
       <div class="control" :class="{ 'is-expanded': !isEdit }">
-        <button type="submit" class="button is-primary" :class="{ 'is-fullwidth': !isEdit }">
-          {{ isEdit ? 'Update User' : 'Add User' }}
+        <button type="submit" class="button is-primary" :class="{ 'is-fullwidth': !isEdit }" :disabled="isLoading">
+          {{ isLoading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update User' : 'Add User') }}
         </button>
       </div>
       <div v-if="isEdit" class="control">
@@ -83,6 +83,7 @@ const emit = defineEmits<{
 }>()
 
 const { addUser, updateUser } = useAuth()
+const isLoading = ref(false)
 
 interface UserForm {
   username: string;
@@ -103,43 +104,56 @@ onMounted(() => {
     form.value = {
       username: props.user.username,
       name: props.user.name,
-      password: '', 
+      password: '',
       role: props.user.role as 'user' | 'admin'
     }
   }
 })
 
-const handleSubmit = () => {
-  if (props.isEdit && props.user) {
-    const userData: Partial<User> = {
-      username: form.value.username,
-      name: form.value.name,
-      role: form.value.role
-    }
-    
-    if (form.value.password) {
-      userData.password = form.value.password
-    }
-    
-    if (updateUser(props.user.id, userData)) {
-      emit('user-updated')
-    }
-  } else {
-    if (addUser({
-      username: form.value.username,
-      name: form.value.name,
-      password: form.value.password,
-      role: form.value.role,
-      friends: []
-    })) {
-      form.value = {
-        username: '',
-        name: '',
-        password: '',
-        role: 'user'
+const handleSubmit = async () => {
+  isLoading.value = true;
+
+  try {
+    if (props.isEdit && props.user) {
+      const userData: Partial<User> = {
+        username: form.value.username,
+        name: form.value.name,
+        role: form.value.role
       }
-      emit('user-added')
+      
+      if (form.value.password) {
+        userData.password = form.value.password
+      }
+      
+      // Use await here
+      const success = await updateUser(props.user.id, userData)
+      if (success) {
+        emit('user-updated')
+      }
+    } else {
+      // Use await here
+      const success = await addUser({
+        username: form.value.username,
+        name: form.value.name,
+        password: form.value.password,
+        role: form.value.role,
+        friends: []
+      })
+      
+      if (success) {
+        form.value = {
+          username: '',
+          name: '',
+          password: '',
+          role: 'user'
+        }
+        emit('user-added')
+      }
     }
+  } catch (error: any) {
+    console.error('Error handling user:', error.message);
+  } finally {
+    isLoading.value = false;
   }
 }
 </script>
