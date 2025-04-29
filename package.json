@@ -5,9 +5,9 @@
     "description": "",
     "scripts": {
         "start": "node server/index.js",
-        "dev": "nodemon server/index.js ",
-         "build": "pnpm install && pnpm install --prefix client && pnpm run build --prefix client",
-        "postinstall": "pnpm run build"
+        "dev": "nodemon server/index.js",
+        "build": "pnpm install --prefix client && pnpm run build --prefix client",
+        "setup": "pnpm install && pnpm install --prefix client"
     },
     "license": "ISC",
     "dependencies": {
