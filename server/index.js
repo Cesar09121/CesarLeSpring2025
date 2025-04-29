@@ -12,7 +12,7 @@ const app = express()
 const PORT = process.env.PORT ?? 3000
 
 app.use(express.json())
-app.use(express.static(path.join(__dirname, '../client/dist')))
+app.use(express.static(path.join(__dirname, '../client')))
 
 // Routes
 
@@ -23,7 +23,7 @@ app.use('/api/v1/post', postController)
 
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../client/dist/index.html'))
+        res.sendFile(path.join(__dirname, '../client/index.html'))
     }
 })
 
