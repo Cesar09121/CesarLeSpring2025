@@ -124,6 +124,48 @@ async function remove(id) {
 
   return deletedUser
 }
+async function seed(){
+  if (!isAdmin) {
+    throw new CustomError('You are not authorized to seed data', statusCodes.UNAUTHORIZED)
+  }
+
+  try {
+    // Check if users already exist
+    const { data: existingUsers, error: checkError } = await connect()
+      .from(TABLE_NAME)
+      .select('username');
+
+    if (checkError) {
+      console.error('Error checking existing users:', checkError);
+      throw checkError;
+    }
+
+    if (existingUsers?.length > 0) {
+      console.log('Users already exist in database');
+      return existingUsers;
+    }
+
+    // Insert new users
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .insert(users)
+      .select('*');
+
+    if (error) {
+      console.error('Error seeding users:', error);
+      throw error;
+    }
+    console.log(`Successfully seeded ${data.length} users`);
+    return data;
+
+  } catch (error) {
+    console.error('Failed to seed users:', error);
+    throw new CustomError(
+      'Failed to seed user data: ' + error.message,
+      statusCodes.INTERNAL_SERVER_ERROR
+    );
+  }
+}
 
 module.exports = {
   getAll,
@@ -131,5 +173,6 @@ module.exports = {
   login,
   create,
   update,
-  remove
+  remove,
+  seed
 }

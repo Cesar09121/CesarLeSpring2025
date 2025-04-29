@@ -1,4 +1,5 @@
 const model = require('../models/activity')
+const data = require('../data/activity.json')
 const express = require('express')
 const router = express.Router()
 
@@ -46,6 +47,15 @@ router
             res.send(data)
         }).catch(next)
     })
+    .post('/seed', async (req, res) => {
+        try {
+            const result = await model.seed(); // Use model.seed instead of seed
+            res.status(200).json(result);
+        } catch (error) {
+            console.error('Error seeding data:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
 
 module.exports = router
 

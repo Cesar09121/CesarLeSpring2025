@@ -22,6 +22,9 @@ POST http://localhost:3000/api/v1/auth/logout
 # Users Controller
 ########################
 
+### Seed Users
+POST http://localhost:3000/api/v1/user/seed
+
 ### Get All Users
 GET http://localhost:3000/api/v1/user
 
@@ -29,6 +32,11 @@ GET http://localhost:3000/api/v1/user
 ########################
 # Activities Controller
 ########################
+
+
+### Seed Activities
+POST http://localhost:3000/api/v1/activity/seed
+Content-Type: application/json
 
 ### Get All Activities
 GET http://localhost:3000/api/v1/activity
@@ -41,54 +49,81 @@ POST http://localhost:3000/api/v1/user
 Content-Type: application/json
 
 {
-    "username": "pattyle2",
-    "password": "password123",
-    "name": "Patty Le",
+    "username": "cle100",
+    "password": "cesarle",
+    "name": "Tu Le",
     "role": "user"
 }
 
 ### Update User
-PATCH http://localhost:3000/api/v1/user/1
+PATCH http://localhost:3000/api/v1/user/24
 Content-Type: application/json
 
 {
-    "name": "pattyle2",
-    "password": "1234cesar"
+    "username": "pattyle25",
+    "password": "12345676575cesar"
 }
 
 ### Delete User
-DELETE http://localhost:3000/api/v1/user/1
+DELETE http://localhost:3000/api/v1/user/31
+
 
 ### Create New Activity
-POST http://localhost:3000/api/v1/activitity
+POST http://localhost:3000/api/v1/activity
 Content-Type: application/json
 
 {
-    "user_id": 1,
-    "type": "Run",
+    "user_id": 24,
+    "type": "Walk",
     "distance": 5.0,
     "distance_unit": "km",
     "duration": 30,
-    "date": "2025-02-25",
+    "date": "2025-05-25",
     "location": {
         "lat": 41.7459793,
         "lng": -74.082801
     }
 }
-
+### Get Activity by ID
+GET http://localhost:3000/api/v1/activity/24
 
 ### Update Activity
-PATCH http://localhost:3000/api/v1/activity/1
+PATCH http://localhost:3000/api/v1/activity/24
 Content-Type: application/json
 
 {
-    "type": "Walk",
+    "id": 13,
+    "user_id": 24,
+    "type": "Run",
     "distance": 3.0,
     "distance_unit": "km",
-    "duration": 45
+    "duration": 45,
+    "date": "2025-05-25",
+    "location_lat": 41.7459793,
+    "location_lng": -74.082801
 }
 
 ### Delete Activity
-DELETE http://localhost:3000/api/v1/activity/1
+DELETE http://localhost:3000/api/v1/activity/15
+
+
+### Create New Post
+POST http://localhost:3000/api/v1/post
+Content-Type: application/json
+
+{
+      "title": "My First Post",
+    "content": "This is the content of my first post.",
+    "author_id": 1,
+    "created_at": "2025-05-01T10:00:00Z"
+}
+### Update Post
+PATCH http://localhost:3000/api/v1/post/3
+Content-Type: application/json
+{
+    "title": "Updated Post Title",
+    "content": "This is the updated content of my post."
+}
+
 
 

@@ -42,6 +42,9 @@ CREATE TABLE activities (
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
+INSERT INTO users (id, username, password, name, role)
+VALUES (1, 'cle20', 'hashed_password', 'Cesar Le', 'admin');
+
 -- Insert Sample Users
 INSERT INTO users (username, name, password, role) VALUES
 ('cle20', 'Cesar Le', 'cesarle', 'admin'),
@@ -70,7 +73,7 @@ INSERT INTO activities (user_id, type, distance, distance_unit, duration, date, 
 -- Insert Sample Posts
 INSERT INTO posts (user_id, title, content, date) VALUES
 (1, 'First Post', 'This is my first post!', '2025-02-20 10:00:00'),
-(2, 'Welcome', 'Hello everyone!', '2025-02-15 15:30:00');
+(2, 'Welcome', 'Hello !', '2025-02-15 15:30:00');
 
 -- Enable Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

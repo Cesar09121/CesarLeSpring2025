@@ -59,23 +59,27 @@ async function create(activity) {
   return newActivity
 }
 
-async function update(id, activity) {
-  if (!isAdmin) {
-    throw new CustomError('You are not authorized to update this activity', statusCodes.UNAUTHORIZED)
+async function update(id, activityData) {
+  try {
+      console.log('Updating activity in database:', { id, activityData });
+
+      const { data, error } = await connect()
+          .from(TABLE_NAME)
+          .update(activityData)
+          .eq('id', id)
+          .select('*')
+          .single();
+
+      if (error) {
+          console.error('Database error:', error.message);
+          throw error;
+      }
+
+      return data;
+  } catch (error) {
+      console.error('Error updating activity:', error.message);
+      throw error;
   }
-
-  const { data: updatedActivity, error } = await connect()
-    .from(TABLE_NAME)
-    .update(activity)
-    .eq('id', id)
-    .select('*')
-    .single()
-
-  if (error) {
-    throw error
-  }
-
-  return updatedActivity
 }
 
 async function remove(id) {
@@ -115,36 +119,146 @@ async function getStats(userId) {
   }
 }
 async function seed() {
+  console.log('Starting activity seed process...');
+  
+  if (!isAdmin) {
+    throw new CustomError('You are not authorized to seed data', statusCodes.UNAUTHORIZED)
+  }
+
+  try {
+    // Check if activities already exist
+    const { data: existingActivities, error: checkError } = await connect()
+      .from(TABLE_NAME)
+      .select('id');
+
+    if (checkError) {
+      console.error('Error checking existing activities:', checkError);
+      throw checkError;
+    }
+
+    if (existingActivities?.length > 0) {
+      console.log('Activities already exist in database');
+      return { message: 'Activities already exist', data: existingActivities };
+    }
+    const results = [];
     for (const activity of data.activity) {
-      const insert = mapToDB(activity)
+      const mappedActivity = mapToDB(activity);
       const { data: newActivity, error } = await connect()
         .from(TABLE_NAME)
-        .insert(insert)
+        .insert(mappedActivity)
         .select('*')
-  
+        .single();
+
       if (error) {
-        console.error('Error seeding activity:', error)
-        throw error
+        console.error('Error inserting activity:', error.message);
+        throw error;
       }
-  
-      console.log('Seeded activity:', newActivity)
+
+      results.push(newActivity);
+      console.log('Seeded activity:', newActivity.id);
     }
-  
-    return { message: 'Seeded successfully' }
+
+    console.log(`Successfully seeded ${results.length} activities`);
+    return { message: 'Seeded successfully', data: results };
+
+  }catch (error) {
+    console.error('Failed to seed activities:', error);
+    throw new CustomError(
+      'Failed to seed activity data: ' + error.message,
+      statusCodes.INTERNAL_SERVER_ERROR
+    );
   }
-  function mapToDB(activity) {
-    return {
-      id: activity.id,
-      user_id: activity.userId,
-      type: activity.type,
-      distance: activity.distance,
-      distance_unit: activity.distanceUnit,
-      duration: activity.duration,
-      date: activity.date,
-      location_lat: activity.location.lat,
-      location_lng: activity.location.lng
+}
+
+
+
+
+  async function createActivity(req, res) {
+  const { user_id, type, distance, distance_unit, duration, date, location_lat, location_lng } = req.body;
+
+  try {
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user_id)
+      .single();
+
+    if (userError) {
+      return res.status(400).json({ error: userError.message });
     }
+
+    const { data: activity, error: activityError } = await supabase
+      .from('activities')
+      .insert({
+        user_id,
+        type,
+        distance,
+        distance_unit,
+        duration,
+        date,
+        location_lat,
+        location_lng
+      })
+      .select('*')
+      .single();
+
+    if (activityError) {
+      return res.status(400).json({ error: activityError.message });
+    }
+
+    return res.status(201).json({ message: 'Activity created successfully', activity });
+  } catch (error) {
+    console.error('Error creating activity:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
+}
+
+async function updateActivity(req, res) {
+  const activityId = req.params.id; 
+  const activityData = req.body; 
+
+  try {
+
+    const { data: existingActivity, error: fetchError } = await supabase
+      .from('activities')
+      .select('*')
+      .eq('id', activityId)
+      .single();
+
+    if (fetchError || !existingActivity) {
+      return res.status(404).json({ message: 'Activity not found' });
+    }
+
+    const { data: updatedActivity, error: updateError } = await supabase
+      .from('activities')
+      .update(activityData)
+      .eq('id', activityId)
+      .select('*')
+      .single();
+
+    if (updateError) {
+      return res.status(400).json({ error: updateError.message });
+    }
+
+    return res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
+  } catch (error) {
+    console.error('Error updating activity:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+function mapToDB(activity) {
+  return {
+    user_id: activity.user_id,
+    type: activity.type,
+    distance: activity.distance,
+    distance_unit: activity.distance_unit,
+    duration: activity.duration,
+    date: activity.date,
+    location_lat: activity.location.lat,
+    location_lng: activity.location.lng
+  }
+}
+
   
 
 module.exports = {
@@ -153,6 +267,9 @@ module.exports = {
   create,
   update,
   remove,
-  seed
+  seed,
+  getStats,
+  createActivity,
+  
 
 }

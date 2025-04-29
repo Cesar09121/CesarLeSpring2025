@@ -39,6 +39,14 @@ router
             .then(data => res.send(data))
             .catch(next)
     })
+    .put('/:id', async (req, res, next) => {
+        try {
+            const updatedPost = await model.update(req.params.id, req.body)
+            res.json(updatedPost)
+        } catch (error) {
+            next(error)
+        }
+    })
 
 module.exports = router
 

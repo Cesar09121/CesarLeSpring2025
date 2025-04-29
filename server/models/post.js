@@ -1,4 +1,3 @@
-const database = require('../database')
 const {connect } = require('./supabase')
 const { CustomError, statusCodes } = require('./errors')
 

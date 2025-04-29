@@ -127,7 +127,7 @@ export function useAuth() {
       id: newId,
       username: userData.username,
       name: userData.name,
-      password: userData.password, 
+      password: hashPassword(userData.password), 
       role: userData.role || ROLES.USER,
       friends: userData.friends || []
     });

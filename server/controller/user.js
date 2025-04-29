@@ -35,7 +35,7 @@ router
     })
     .delete('/:id', (req, res, next) => {
         const { id } = req.params
-        
+        console.log("Deleting user with ID:", id)
         model.remove(id)
             .then(data => res.send(data))
             .catch(next)
@@ -45,6 +45,17 @@ router
         const updateUser = await update(req.params.id, req.body)
         res.json(updateUser)
     })
+    .post('/seed', async (req, res, next) => {
+        try {
+            const result = await model.seed();
+            res.status(200).json({ message: 'Users seeded successfully', data: result });
+        } catch (error) {
+            console.error('Seed error:', error);
+            next(error);
+        }
+    });
+
+    
     
 module.exports = router
 
