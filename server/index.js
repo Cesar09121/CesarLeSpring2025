@@ -23,7 +23,7 @@ app.use('/api/v1/post', postController)
 
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../client/index.html'))
+        res.sendFile(path.join(__dirname, '../client/dist/index.html'))
     }
 })
 
