@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "buefy": "npm:@ntohq/buefy-next@^0.2.0",
     "bulma": "^1.0.3",
     "dotenv": "^16.5.0",

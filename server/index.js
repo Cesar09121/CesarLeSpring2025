@@ -4,7 +4,7 @@ const express = require('express')
 const userController = require('./controller/user')
 const activityController = require('./controller/activity')
 const authController = require('./controller/auth')
-const postController = require('./controller/post')
+
 
 
 
@@ -19,7 +19,6 @@ app.use(express.static(path.join(__dirname, '../client')))
 app.use('/api/v1/auth', authController)
 app.use('/api/v1/user', userController)
 app.use('/api/v1/activity', activityController)
-app.use('/api/v1/post', postController)
 
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {

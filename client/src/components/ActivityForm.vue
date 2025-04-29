@@ -194,7 +194,7 @@ const handleSubmit = () => {
     distanceUnit: form.value.distanceUnit,
     duration: Number(form.value.duration),
     date: form.value.date,
-    location: form.value.location
+    location: { ...form.value.location }
   }
 
   if (props.isEdit && props.activity) {

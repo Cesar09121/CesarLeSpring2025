@@ -85,45 +85,29 @@ Content-Type: application/json
     }
 }
 ### Get Activity by ID
-GET http://localhost:3000/api/v1/activity/24
+GET http://localhost:3000/api/v1/activity/2
 
 ### Update Activity
-PATCH http://localhost:3000/api/v1/activity/24
+PATCH http://localhost:3000/api/v1/activity/18
 Content-Type: application/json
 
 {
-    "id": 13,
     "user_id": 24,
-    "type": "Run",
+    "type": "Swim",
     "distance": 3.0,
     "distance_unit": "km",
     "duration": 45,
     "date": "2025-05-25",
-    "location_lat": 41.7459793,
-    "location_lng": -74.082801
+    "location": {
+        "lat": 41.7459793,
+        "lng": -74.082801
+    }
 }
 
 ### Delete Activity
-DELETE http://localhost:3000/api/v1/activity/15
+DELETE http://localhost:3000/api/v1/activity/19
 
 
-### Create New Post
-POST http://localhost:3000/api/v1/post
-Content-Type: application/json
-
-{
-      "title": "My First Post",
-    "content": "This is the content of my first post.",
-    "author_id": 1,
-    "created_at": "2025-05-01T10:00:00Z"
-}
-### Update Post
-PATCH http://localhost:3000/api/v1/post/3
-Content-Type: application/json
-{
-    "title": "Updated Post Title",
-    "content": "This is the updated content of my post."
-}
 
 
 

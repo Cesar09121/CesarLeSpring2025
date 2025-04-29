@@ -126,7 +126,7 @@ async function seed() {
   }
 
   try {
-    // Check if activities already exist
+  
     const { data: existingActivities, error: checkError } = await connect()
       .from(TABLE_NAME)
       .select('id');
@@ -254,8 +254,7 @@ function mapToDB(activity) {
     distance_unit: activity.distance_unit,
     duration: activity.duration,
     date: activity.date,
-    location_lat: activity.location.lat,
-    location_lng: activity.location.lng
+   location: activity.location
   }
 }
 
