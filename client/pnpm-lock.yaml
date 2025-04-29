@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      buefy:
+        specifier: npm:@ntohq/buefy-next@^0.2.0
+        version: '@ntohq/buefy-next@0.2.0(vue@3.5.13(typescript@5.7.3))'
       bulma:
         specifier: ^1.0.3
         version: 1.0.3
@@ -452,6 +455,11 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
+  '@ntohq/buefy-next@0.2.0':
+    resolution: {integrity: sha512-I8/8eM2eOxZCl5igqYn274fpbgpJEPWGULvVDOXdT2WOaiWA8AHQPsT9WfknW3DENuYEWyMzKTyVI74R/Yl3BA==}
+    peerDependencies:
+      vue: ^3.0.0
+
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
@@ -540,6 +548,11 @@ packages:
 
   '@rollup/rollup-linux-x64-gnu@4.34.8':
     resolution: {integrity: sha512-8y7ED8gjxITUltTUEJLQdgpbPh1sUQ0kMTmufRF/Ns5tI9TNMNlhWtmPKKHCU0SilX+3MJkZ0zERYYGIVBYHIA==}
+    cpu: [x64]
+    os: [linux]
+
+  '@rollup/rollup-linux-x64-gnu@4.6.1':
+    resolution: {integrity: sha512-DNGZvZDO5YF7jN5fX8ZqmGLjZEXIJRdJEdTFMhiyXqyXubBa0WVLDWSNlQ5JR2PNgDbEV1VQowhVRUh+74D+RA==}
     cpu: [x64]
     os: [linux]
 
@@ -2001,6 +2014,12 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.19.1
 
+  '@ntohq/buefy-next@0.2.0(vue@3.5.13(typescript@5.7.3))':
+    dependencies:
+      vue: 3.5.13(typescript@5.7.3)
+    optionalDependencies:
+      '@rollup/rollup-linux-x64-gnu': 4.6.1
+
   '@pkgr/core@0.1.1': {}
 
   '@polka/url@1.0.0-next.28': {}
@@ -2056,6 +2075,9 @@ snapshots:
     optional: true
 
   '@rollup/rollup-linux-x64-gnu@4.34.8':
+    optional: true
+
+  '@rollup/rollup-linux-x64-gnu@4.6.1':
     optional: true
 
   '@rollup/rollup-linux-x64-musl@4.34.8':
