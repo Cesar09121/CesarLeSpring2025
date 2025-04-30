@@ -168,7 +168,7 @@ const fetchUsers = async () => {
   try {
     isLoading.value = true
     const users = await getAllUsers()
-    allUsers.value = Array.isArray(users) ? users : users 
+    allUsers.value = Array.isArray(users) ? users : users
     console.log('Users loaded:', allUsers.value)
   } catch (error) {
     console.error('Failed to fetch users:', error)
