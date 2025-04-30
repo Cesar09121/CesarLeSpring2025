@@ -61,6 +61,18 @@ const routes: Array<RouteRecordRaw> = [
     name: 'admin',
     component: AdminPage,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/logout',
+    name: 'logout',
+    redirect: () => {
+
+      const { logout } = useAuth()
+
+      logout()
+      
+      return '/login'
+    }
   }
 ]
 
@@ -69,35 +81,34 @@ const router = createRouter({
   routes
 })
 
-// Don't get auth state here - get fresh state in each navigation guard
-router.beforeEach(async (to, _, next) => {
-  // Get fresh auth state for each navigation
+router.beforeEach((to, _, next) => {
+
   const { isLoggedIn, currentUser } = useAuth()
   
-  // Clear any stale auth data in production
-  if (import.meta.env.PROD && !isLoggedIn.value) {
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('user_id')
-  }
+  if (to.meta.requiresGuest) {
+    if (isLoggedIn.value) {
 
-  // Guest pages (login/register)
-  if (to.meta.requiresGuest && isLoggedIn.value) {
-    next('/dashboard')
+      next('/dashboard')
+    } else {
+
+      next()
+    }
     return
   }
 
-  // Protected routes
-  if (to.meta.requiresAuth && !isLoggedIn.value) {
-    next('/login')
-    return
+  if (to.meta.requiresAuth) {
+    if (!isLoggedIn.value) {
+  
+      next('/login')
+      return
+    }
+    
+    if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
+      next('/dashboard')
+      return
+    }
   }
-
-  // Admin routes
-  if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
-    next('/dashboard')
-    return
-  }
-
+  
   next()
 })
 
