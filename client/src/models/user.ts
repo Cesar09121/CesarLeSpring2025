@@ -68,23 +68,50 @@ const hashPassword = (password: string): string => {
   return `hashed_${password}`;
 }
 
-
-(function initFromStorage() {
+// Instead of auto-executing, make this a function that can be called
+const initFromStorage = () => {
   const token = localStorage.getItem(TOKEN_KEY);
   const userIdStr = localStorage.getItem('user_id');
   
-  console.log('[Auth] Checking stored credentials on module load');
+  console.log('[Auth] Checking stored credentials');
   
   if (token && userIdStr) {
-    const userId = parseInt(userIdStr);
-    const user = users.value.find(u => u.id === userId);
-    
-    if (user) {
-      currentUser.value = user;
-      console.log('[Auth] User restored from storage:', user.username);
+    try {
+      const userId = parseInt(userIdStr);
+      const user = users.value.find(u => u.id === userId);
+      
+      if (user) {
+        currentUser.value = user;
+        console.log('[Auth] User restored from storage:', user.username);
+        return true;
+      } else {
+        // Invalid user ID, clear storage
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem('user_id');
+        console.log('[Auth] Invalid user ID in storage, cleared credentials');
+      }
+    } catch (error) {
+      // Error processing stored credentials, clear them
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('user_id');
+      console.error('[Auth] Error restoring user from storage:', error);
     }
   }
-})();
+  
+  // If we reach here, no valid credentials were found or processed
+  currentUser.value = null;
+  return false;
+};
+
+// Call this once when the module loads to initialize state
+// But wrap in try/catch to prevent initialization errors
+try {
+  initFromStorage();
+} catch (error) {
+  console.error('[Auth] Error during initialization:', error);
+  // Ensure currentUser is null if initialization fails
+  currentUser.value = null;
+}
 
 export function useAuth() {
   const router = useRouter();
@@ -238,6 +265,7 @@ export function useAuth() {
       .filter((user): user is PublicUser => user !== null);
   };
   
+  // Make sure to return our functions here
   return {
     currentUser,
     isLoading,
@@ -251,6 +279,7 @@ export function useAuth() {
     addUser,
     updateUser,
     deleteUser,
-    getFriends
+    getFriends,
+    initFromStorage // Export the function so it can be called explicitly
   };
 }

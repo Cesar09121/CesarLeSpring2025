@@ -12,11 +12,7 @@ import ProfilePage from '../pages/ProfilePage.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'root',
-    redirect: to => {
-      const { isLoggedIn } = useAuth()
-      return isLoggedIn.value ? '/dashboard' : '/login'
-    }
+    redirect: '/login'
   },
   {
     path: '/dashboard',
@@ -73,32 +69,30 @@ const router = createRouter({
   routes
 })
 
-const { isLoggedIn, currentUser } = useAuth()
-
+// Don't get auth state here - get fresh state in each navigation guard
 router.beforeEach(async (to, _, next) => {
-  // Always check auth state first
+  // Get fresh auth state for each navigation
+  const { isLoggedIn, currentUser } = useAuth()
+  
+  // Clear any stale auth data in production
   if (import.meta.env.PROD && !isLoggedIn.value) {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_id')
   }
 
-  // Handle public routes (login/register)
-  if (to.path === '/login' || to.path === '/register') {
-    if (isLoggedIn.value) {
-      next('/dashboard')
-    } else {
-      next()
-    }
+  // Guest pages (login/register)
+  if (to.meta.requiresGuest && isLoggedIn.value) {
+    next('/dashboard')
     return
   }
 
-  // Handle protected routes
-  if (!isLoggedIn.value) {
+  // Protected routes
+  if (to.meta.requiresAuth && !isLoggedIn.value) {
     next('/login')
     return
   }
 
-  // Handle admin routes
+  // Admin routes
   if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
     next('/dashboard')
     return
