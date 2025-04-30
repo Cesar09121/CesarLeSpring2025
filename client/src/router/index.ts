@@ -12,7 +12,11 @@ import ProfilePage from '../pages/ProfilePage.vue'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/login'
+    name: 'root',
+    redirect: to => {
+      const { isLoggedIn } = useAuth()
+      return isLoggedIn.value ? '/dashboard' : '/login'
+    }
   },
   {
     path: '/dashboard',
@@ -71,27 +75,30 @@ const router = createRouter({
 
 const { isLoggedIn, currentUser } = useAuth()
 
-// Initialize auth state before router starts
 router.beforeEach(async (to, _, next) => {
-  // Clear any stale auth data in production
+  // Always check auth state first
   if (import.meta.env.PROD && !isLoggedIn.value) {
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_id')
   }
 
-  // Guest pages (login/register)
-  if (to.meta.requiresGuest && isLoggedIn.value) {
-    next('/dashboard')
+  // Handle public routes (login/register)
+  if (to.path === '/login' || to.path === '/register') {
+    if (isLoggedIn.value) {
+      next('/dashboard')
+    } else {
+      next()
+    }
     return
   }
 
-  // Protected routes
-  if (to.meta.requiresAuth && !isLoggedIn.value) {
+  // Handle protected routes
+  if (!isLoggedIn.value) {
     next('/login')
     return
   }
 
-  // Admin routes
+  // Handle admin routes
   if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
     next('/dashboard')
     return
