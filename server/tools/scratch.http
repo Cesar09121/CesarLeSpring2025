@@ -49,7 +49,7 @@ POST http://localhost:3000/api/v1/user
 Content-Type: application/json
 
 {
-    "username": "cle1000",
+    "username": "cle10001111",
     "password": "cesarle",
     "name": "Tu Le",
     "role": "user"
