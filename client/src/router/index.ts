@@ -15,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/login'
   },
   {
-    path: '/',
+    path: '/dashboard',  // Changed from '/' to '/dashboard'
     name: 'home',
     component: HomePage,
     meta: { requiresAuth: true }
@@ -24,13 +24,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'login',
     component: LoginPage,
-    meta: { requiresAuth: false }
+    meta: { requiresGuest: true }  // Changed from requiresAuth: false
   },
   {
     path: '/register',
     name: 'register',
     component: RegisterPage,
-    meta: { requiresAuth: false }
+    meta: { requiresGuest: true }  // Changed from requiresAuth: false
   },
   {
     path: '/activities',
@@ -69,50 +69,28 @@ const router = createRouter({
   routes
 })
 
-
-const hasStoredCredentials = () => {
-  const token = localStorage.getItem('auth_token');
-  const userId = localStorage.getItem('user_id');
-  return !!token && !!userId;
-}
-
 const { isLoggedIn, currentUser } = useAuth()
 
 router.beforeEach((to, _, next) => {
- 
-  const hasCredentials = hasStoredCredentials();
-  
-  console.log('Route guard - isLoggedIn:', isLoggedIn.value);
-  console.log('Route guard - currentUser:', currentUser.value);
-  console.log('Route guard - hasCredentials:', hasCredentials);
-  
-  
-  if (!isLoggedIn.value && hasCredentials) {
-    console.log('Has credentials in storage but not logged in');
-    
-    if (!to.meta.requiresAuth) {
-      next();
-      return;
-    }
+  // Guest pages (login/register)
+  if (to.meta.requiresGuest && isLoggedIn.value) {
+    next('/dashboard')
+    return
+  }
 
-   
-    next();
-    return;
-  }
-  
- 
+  // Protected routes
   if (to.meta.requiresAuth && !isLoggedIn.value) {
-    console.log('Authentication required, redirecting to login');
-    next({ name: 'login' });
+    next('/login')
+    return
   }
-  else if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
-    console.log('Admin access required, redirecting to home');
-    next({ name: 'home' });
+
+  // Admin routes
+  if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
+    next('/dashboard')
+    return
   }
-  else {
-    console.log('Navigation authorized');
-    next();
-  }
+
+  next()
 })
 
 export default router
