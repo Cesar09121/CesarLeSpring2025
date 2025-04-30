@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-
+import { api } from './myFetch';
+export * from './auth';
 
 export const ROLES = {
   ADMIN: 'admin',
@@ -16,12 +17,18 @@ export interface User {
   friends: number[];
 }
 
+const TOKEN_KEY = 'auth_token';
+
+const currentUser = ref<User | null>(null);
+const isLoading = ref(false);
+
 export interface PublicUser {
   id: number;
   username: string;
   name: string;
   role: string;
 }
+
 const users = ref<User[]>([
   {
     id: 1,
@@ -58,44 +65,86 @@ const users = ref<User[]>([
 ]);
 
 const hashPassword = (password: string): string => {
-
   return `hashed_${password}`;
 }
 
-const currentUser = ref<User | null>(null);
-const isLoggedIn = computed(() => currentUser.value !== null);
-const isAdmin = computed(() => currentUser.value?.role === ROLES.ADMIN);
+
+(function initFromStorage() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const userIdStr = localStorage.getItem('user_id');
+  
+  console.log('[Auth] Checking stored credentials on module load');
+  
+  if (token && userIdStr) {
+    const userId = parseInt(userIdStr);
+    const user = users.value.find(u => u.id === userId);
+    
+    if (user) {
+      currentUser.value = user;
+      console.log('[Auth] User restored from storage:', user.username);
+    }
+  }
+})();
 
 export function useAuth() {
   const router = useRouter();
   
-  const login = async (username: string, password: string): Promise<boolean> => {
+  const isLoggedIn = computed(() => currentUser.value !== null);
+  const isAdmin = computed(() => currentUser.value?.role === ROLES.ADMIN);
 
-    const user = users.value.find(
-      u => u.username === username && u.password === password
-    );
-    
-    if (user) {
-      currentUser.value = { ...user };
-      return true;
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      isLoading.value = true;
+
+   
+      let mockResponse = null;
+      const user = users.value.find(u => 
+        u.username === username && u.password === password
+      );
+      
+      if (user) {
+        mockResponse = {
+          user,
+          token: 'mock_token_' + Date.now()
+        };
+      }
+
+      
+      const response = mockResponse;
+      console.log('Login response:', response);
+  
+      if (response && response.user) {
+      
+        currentUser.value = response.user;
+        console.log('currentUser after login:', currentUser.value);
+        
+        localStorage.setItem(TOKEN_KEY, response.token);
+        localStorage.setItem('user_id', response.user.id.toString());
+        
+        return true;
+      }
+  
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    } finally {
+      isLoading.value = false;
     }
-    
-    return false;
   };
   
   const logout = () => {
     currentUser.value = null;
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem('user_id');
     router.push('/login');
   };
   
-  const getAllUsers = computed((): PublicUser[] => {
-    return users.value.map(user => ({
-      id: user.id,
-      username: user.username,
-      name: user.name,
-      role: user.role
-    }));
-  });
+  const getAllUsers = async (): Promise<PublicUser[]> => {
+    const result = await api<any>('user');
+    
+    return Array.isArray(result) ? result : result.items ?? [];
+  };
   
   const getUserById = (id: number): PublicUser | null => {
     const user = users.value.find(u => u.id === id);
@@ -122,7 +171,6 @@ export function useAuth() {
  
     const newId = Math.max(...users.value.map(u => u.id), 0) + 1;
     
-
     users.value.push({
       id: newId,
       username: userData.username,
@@ -132,12 +180,10 @@ export function useAuth() {
       friends: userData.friends || []
     });
     
-
     return;
   };
   
   const addUser = async (userData: Omit<User, 'id'>): Promise<boolean> => {
-
     if (!isAdmin.value) {
       throw new Error('Unauthorized: Admin access required');
     }
@@ -153,7 +199,6 @@ export function useAuth() {
   };
   
   const updateUser = async (id: number, userData: Partial<User>): Promise<boolean> => {
- 
     if (!isAdmin.value && currentUser.value?.id !== id) {
       throw new Error('Unauthorized: You can only update your own account');
     }
@@ -166,7 +211,6 @@ export function useAuth() {
       ...userData
     };
     
-   
     if (currentUser.value && currentUser.value.id === id) {
       currentUser.value = { ...users.value[index] };
     }
@@ -175,7 +219,6 @@ export function useAuth() {
   };
   
   const deleteUser = async (id: number): Promise<boolean> => {
- 
     if (!isAdmin.value) {
       throw new Error('Unauthorized: Admin access required');
     }
@@ -197,6 +240,7 @@ export function useAuth() {
   
   return {
     currentUser,
+    isLoading,
     isLoggedIn,
     isAdmin,
     login,

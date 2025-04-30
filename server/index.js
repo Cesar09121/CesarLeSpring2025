@@ -1,5 +1,6 @@
 const path = require('path')
 require('dotenv').config()
+const cors = require('cors')
 const express = require('express')
 const userController = require('./controller/user')
 const activityController = require('./controller/activity')
@@ -13,6 +14,7 @@ const PORT = process.env.PORT ?? 3000
 
 app.use(express.json())
 app.use(express.static(path.join(__dirname, '../client')))
+app.use(cors());
 
 // Routes
 

@@ -49,7 +49,7 @@ POST http://localhost:3000/api/v1/user
 Content-Type: application/json
 
 {
-    "username": "cle100",
+    "username": "cle1000",
     "password": "cesarle",
     "name": "Tu Le",
     "role": "user"
@@ -61,7 +61,7 @@ Content-Type: application/json
 
 {
     "username": "pattyle25",
-    "password": "12345676575cesar"
+    "password": "111111cesar"
 }
 
 ### Delete User

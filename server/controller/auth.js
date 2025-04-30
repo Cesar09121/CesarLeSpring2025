@@ -4,7 +4,7 @@ const model = require('../models/user')
 
 router
     .post('/login', (req, res, next) => {
-        console.log("hi")
+        
         const { username, password } = req.body
         
         model.login(username, password)

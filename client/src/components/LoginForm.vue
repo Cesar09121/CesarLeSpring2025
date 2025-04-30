@@ -83,9 +83,14 @@ const handleLogin = async () => {
   
   try {
     const success = await login(username.value, password.value)
+   
     if (success) {
+      console.log('Login success:', success) // Debugging line
+    
       router.push('/')
+      
     } else {
+      
       error.value = 'Invalid username or password'
       setTimeout(() => {
         error.value = ''

@@ -29,11 +29,22 @@
         </div>
       </div>
       
+  
+  <!-- Add this near the start of your user list section -->
+  <div v-if="activeTab === 'users'">
+    <div v-if="isLoading" class="has-text-centered">
+      <p class="is-loading">Loading users...</p>
+    </div>
+    <div v-else>
+      <!-- Your existing UserList component -->
       <UserList 
         :users="allUsers" 
         @edit="editUser" 
         @delete="deleteUser"
       />
+    </div>
+  </div>
+
       
       <div class="modal" :class="{ 'is-active': showAddUserModal }">
         <div class="modal-background" @click="closeAddUserModal"></div>
@@ -136,16 +147,54 @@ import { useAuth, PublicUser, ROLES } from '../models/user'
 import { useActivities } from '../models/activity'
 import UserForm from '../components/UserForm.vue'
 import UserList from '../components/UserList.vue'
+import { onMounted } from 'vue'
 
 const activeTab = ref('users')
 const showAddUserModal = ref(false)
 const showEditUserModal = ref(false)
 const selectedUserId = ref<number | null>(null)
+  const isLoading = ref(true)
 
 const { getAllUsers, getUserById, deleteUser: removeUser } = useAuth()
 const { getUserActivities } = useActivities()
 
-const allUsers = computed(() => getAllUsers.value)
+const allUsers = ref<PublicUser[]>([])
+
+ 
+
+
+
+const fetchUsers = async () => {
+  try {
+    isLoading.value = true
+    const users = await getAllUsers()
+    allUsers.value = Array.isArray(users) ? users : users.items
+    console.log('Users loaded:', allUsers.value)
+  } catch (error) {
+    console.error('Failed to fetch users:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchUsers()
+})
+
+const onUserAdded = () => {
+  closeAddUserModal()
+  fetchUsers() 
+}
+
+const onUserUpdated = () => {
+  closeEditUserModal()
+  fetchUsers() 
+}
+
+const deleteUser = async (id: number) => {
+  await removeUser(id)
+  fetchUsers() 
+}
 
 const selectedUser = computed(() => {
   if (selectedUserId.value === null) return null
@@ -157,9 +206,7 @@ const editUser = (id: number) => {
   showEditUserModal.value = true
 }
 
-const deleteUser = (id: number) => {
-  removeUser(id)
-}
+
 
 const closeAddUserModal = () => {
   showAddUserModal.value = false
@@ -170,13 +217,7 @@ const closeEditUserModal = () => {
   selectedUserId.value = null
 }
 
-const onUserAdded = () => {
-  closeAddUserModal()
-}
 
-const onUserUpdated = () => {
-  closeEditUserModal()
-}
 
 const adminUsersCount = computed(() => {
   return allUsers.value.filter(user => user.role === ROLES.ADMIN).length

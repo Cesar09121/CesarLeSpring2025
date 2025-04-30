@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { User, PublicUser } from './user'
 
+
 const session = ref({
   user: null as User | null,
   token: null as string | null,

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { User } from '../models/user'
+import {api} from './myFetch'
 
 const TOKEN_KEY = 'auth_token'
 
@@ -21,34 +22,34 @@ export function useAuth() {
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
       session.value.isLoading = true
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      const storedUsers = localStorage.getItem('users')
-      const users = storedUsers ? JSON.parse(storedUsers) : []
+  
+      const response = await api<{ user: User; token: string }>('login', {
+        method: 'POST',
+        body: {
+          username,
+          password
+        }
+      });
+      console.log('Login response:', response);
+  
+      if (response && response.user && response.token) {
 
-      const user = users.find((u: User) => 
-        u.username === username && u.password === password
-      )
-      
-      if (user) {
-        const token = `token_${Math.random().toString(36).substr(2)}`
+        session.value.user = response.user;
+        session.value.token = response.token;
+
+        localStorage.setItem(TOKEN_KEY, response.token);
         
-        session.value.user = user
-        session.value.token = token
-        
-        localStorage.setItem(TOKEN_KEY, token)
-        
-        return true
+        return true;
       }
-      
-      return false
+  
+      return false;
     } catch (error) {
-      console.error('Login error:', error)
-      return false
+      console.error('Login error:', error);
+      return false;
     } finally {
-      session.value.isLoading = false
+      session.value.isLoading = false;
     }
-  }
+  };
   const register = async (userData: Omit<User, 'id'>): Promise<boolean> => {
     try {
       session.value.isLoading = true

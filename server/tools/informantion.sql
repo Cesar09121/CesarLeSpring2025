@@ -17,16 +17,7 @@ CREATE TABLE friends (
     PRIMARY KEY (user_id, friend_id)
 );
 
--- Create Posts Table
-CREATE TABLE posts (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(100) NOT NULL,
-    content TEXT NOT NULL,
-    date TIMESTAMPTZ NOT NULL,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
+
 
 -- Create Activities Table
 CREATE TABLE activities (
@@ -70,10 +61,7 @@ INSERT INTO activities (user_id, type, distance, distance_unit, duration, date, 
 (3, 'Swim', 1000, 'm', 35, '2025-02-19 11:15:00',
     jsonb_build_object('lat', 41.7459793, 'lng', -74.082801));
 
--- Insert Sample Posts
-INSERT INTO posts (user_id, title, content, date) VALUES
-(1, 'First Post', 'This is my first post!', '2025-02-20 10:00:00'),
-(2, 'Welcome', 'Hello !', '2025-02-15 15:30:00');
+
 
 -- Enable Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;

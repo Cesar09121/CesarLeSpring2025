@@ -65,17 +65,49 @@ const router = createRouter({
   routes
 })
 
+
+const hasStoredCredentials = () => {
+  const token = localStorage.getItem('auth_token');
+  const userId = localStorage.getItem('user_id');
+  return !!token && !!userId;
+}
+
+const { isLoggedIn, currentUser } = useAuth()
+
 router.beforeEach((to, _, next) => {
-  const { isLoggedIn, currentUser } = useAuth()
+ 
+  const hasCredentials = hasStoredCredentials();
   
+  console.log('Route guard - isLoggedIn:', isLoggedIn.value);
+  console.log('Route guard - currentUser:', currentUser.value);
+  console.log('Route guard - hasCredentials:', hasCredentials);
+  
+  
+  if (!isLoggedIn.value && hasCredentials) {
+    console.log('Has credentials in storage but not logged in');
+    
+    if (!to.meta.requiresAuth) {
+      next();
+      return;
+    }
+
+   
+    next();
+    return;
+  }
+  
+ 
   if (to.meta.requiresAuth && !isLoggedIn.value) {
-    next({ name: 'login' })
+    console.log('Authentication required, redirecting to login');
+    next({ name: 'login' });
   }
   else if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
-    next({ name: 'home' })
+    console.log('Admin access required, redirecting to home');
+    next({ name: 'home' });
   }
   else {
-    next()
+    console.log('Navigation authorized');
+    next();
   }
 })
 
