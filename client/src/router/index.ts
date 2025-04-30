@@ -15,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/login'
   },
   {
-    path: '/dashboard',
+    path: '/',
     name: 'home',
     component: HomePage,
     meta: { requiresAuth: true }
@@ -24,13 +24,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'login',
     component: LoginPage,
-    meta: { requiresGuest: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/register',
     name: 'register',
     component: RegisterPage,
-    meta: { requiresGuest: true }
+    meta: { requiresAuth: false }
   },
   {
     path: '/activities',
@@ -69,25 +69,50 @@ const router = createRouter({
   routes
 })
 
+
+const hasStoredCredentials = () => {
+  const token = localStorage.getItem('auth_token');
+  const userId = localStorage.getItem('user_id');
+  return !!token && !!userId;
+}
+
 const { isLoggedIn, currentUser } = useAuth()
 
-router.beforeEach((to, from, next) => {
-  if (to.meta.requiresGuest && isLoggedIn.value) {
-    next('/dashboard')
-    return
-  }
+router.beforeEach((to, _, next) => {
+ 
+  const hasCredentials = hasStoredCredentials();
+  
+  console.log('Route guard - isLoggedIn:', isLoggedIn.value);
+  console.log('Route guard - currentUser:', currentUser.value);
+  console.log('Route guard - hasCredentials:', hasCredentials);
+  
+  
+  if (!isLoggedIn.value && hasCredentials) {
+    console.log('Has credentials in storage but not logged in');
+    
+    if (!to.meta.requiresAuth) {
+      next();
+      return;
+    }
 
+   
+    next();
+    return;
+  }
+  
+ 
   if (to.meta.requiresAuth && !isLoggedIn.value) {
-    next('/login')
-    return
+    console.log('Authentication required, redirecting to login');
+    next({ name: 'login' });
   }
-
-  if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
-    next('/dashboard')
-    return
+  else if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
+    console.log('Admin access required, redirecting to home');
+    next({ name: 'home' });
   }
-
-  next()
+  else {
+    console.log('Navigation authorized');
+    next();
+  }
 })
 
 export default router
