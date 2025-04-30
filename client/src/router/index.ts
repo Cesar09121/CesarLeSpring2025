@@ -15,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [
     redirect: '/login'
   },
   {
-    path: '/dashboard',  // Changed from '/' to '/dashboard'
+    path: '/dashboard',
     name: 'home',
     component: HomePage,
     meta: { requiresAuth: true }
@@ -24,13 +24,13 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'login',
     component: LoginPage,
-    meta: { requiresGuest: true }  // Changed from requiresAuth: false
+    meta: { requiresGuest: true }
   },
   {
     path: '/register',
     name: 'register',
     component: RegisterPage,
-    meta: { requiresGuest: true }  // Changed from requiresAuth: false
+    meta: { requiresGuest: true }
   },
   {
     path: '/activities',
@@ -71,7 +71,14 @@ const router = createRouter({
 
 const { isLoggedIn, currentUser } = useAuth()
 
-router.beforeEach((to, _, next) => {
+// Initialize auth state before router starts
+router.beforeEach(async (to, _, next) => {
+  // Clear any stale auth data in production
+  if (import.meta.env.PROD && !isLoggedIn.value) {
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('user_id')
+  }
+
   // Guest pages (login/register)
   if (to.meta.requiresGuest && isLoggedIn.value) {
     next('/dashboard')
