@@ -9,7 +9,7 @@
         "build": "pnpm --prefix client i && pnpm run build:client",
         "postbuild": "echo 'Build completed successfully'",
         "prod": "pnpm run build && pnpm start",
-        "build client": "pnpm run --prefix client build"
+        "build:client": "pnpm run --prefix client build"
     },
     "license": "ISC",
     "dependencies": {
