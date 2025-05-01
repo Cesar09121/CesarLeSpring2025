@@ -1,56 +1,40 @@
 {
-  "activity": [
+  "activities": [
     {
       "id": 1,
-      "user_id": 1,
-      "type": "Run",
-      "distance": 3.1,
-      "distance_unit": "mi",
+      "userId": 1,
+      "type": "Running",
       "duration": 30,
-      "date": "2025-02-20",
-      "location": {
-        "lat": 41.7459793,
-        "lng": -74.082801
-      }
+      "distance": 3.1,
+      "location": "New Paltz Trail",
+      "date": "2025-02-20T10:00:00Z"
     },
     {
-      "id": 2, 
-      "user_id": 2,
-      "type": "Walk",
-      "distance": 1.2,
-      "distance_unit": "mi",
+      "id": 2,
+      "userId": 2,
+      "type": "Walking",
       "duration": 45,
-      "date": "2025-02-15",
-      "location": {
-        "lat": 41.7459793,
-        "lng": -74.082801
-      }
+      "distance": 1.2,
+      "location": "SUNY New Paltz",
+      "date": "2025-02-15T15:30:00Z"
     },
     {
       "id": 3,
-      "user_id": 1,
-      "type": "Cycle", 
-      "distance": 15.5,
-      "distance_unit": "km",
+      "userId": 1,
+      "type": "Cycling",
       "duration": 60,
-      "date": "2025-02-18",
-      "location": {
-        "lat": 41.7459793,
-        "lng": -74.082801
-      }
+      "distance": 15.5,
+      "location": "Hudson Valley Rail Trail",
+      "date": "2025-02-18T14:00:00Z"
     },
     {
       "id": 4,
-      "user_id": 3,
-      "type": "Swim",
-      "distance": 1000,
-      "distance_unit": "m",
+      "userId": 3,
+      "type": "Swimming",
       "duration": 35,
-      "date": "2025-02-19",
-      "location": {
-        "lat": 41.7459793,
-        "lng": -74.082801
-      }
+      "distance": 1.0,
+      "location": "Athletic Center",
+      "date": "2025-02-19T11:15:00Z"
     }
   ]
 }

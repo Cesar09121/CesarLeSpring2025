@@ -1,0 +1,64 @@
+{
+    "posts": [
+      {
+        "id": 1,
+        "userId": 1,
+        "username": "cle20",
+        "type": "Running",
+        "content": "Morning run at the park. Beautiful day!",
+        "duration": 30,
+        "distance": 3.1,
+        "location": "New Paltz Trail",
+        "date": "2025-04-29T14:00:00Z",
+        "created_at": "2025-05-01T14:00:00Z"
+      },
+      {
+        "id": 2,
+        "userId": 2,
+        "username": "jewpaltz",
+        "type": "Walking",
+        "content": "Evening stroll around campus. Lovely sunset today.",
+        "duration": 45,
+        "distance": 1.2,
+        "location": "SUNY New Paltz",
+        "date": "2025-04-28T18:30:00Z",
+        "created_at": "2025-05-01T14:00:00Z"
+      },
+      {
+        "id": 3,
+        "userId": 3,
+        "username": "jngo",
+        "type": "Swimming",
+        "content": "Great swimming session. Improved my lap time!",
+        "duration": 35,
+        "distance": 1.0,
+        "location": "Athletic Center",
+        "date": "2025-04-27T11:15:00Z",
+        "created_at": "2025-05-01T14:00:00Z"
+      },
+      {
+        "id": 4,
+        "userId": 1,
+        "username": "cle20",
+        "type": "Cycling",
+        "content": "Long ride through the Hudson Valley. Amazing views!",
+        "duration": 60,
+        "distance": 15.5,
+        "location": "Hudson Valley Rail Trail",
+        "date": "2025-04-30T09:00:00Z",
+        "created_at": "2025-05-01T14:00:00Z"
+      },
+      {
+        "id": 5,
+        "userId": 4,
+        "username": "thunguyen",
+        "type": "Yoga",
+        "content": "Morning yoga session. Feeling refreshed and energized!",
+        "duration": 40,
+        "distance": 0,
+        "location": "Home",
+        "date": "2025-05-01T07:30:00Z",
+        "created_at": "2025-05-01T14:00:00Z"
+      }
+    ]
+  }

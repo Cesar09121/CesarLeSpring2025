@@ -1,80 +1,122 @@
 <template>
+  <h1 class="title is-3">Your Activity</h1>
   <div>
-    <section class="hero is-info welcome is-small mb-4">
-      <div class="hero-body">
-        <div class="container">
-          <h1 class="title">Hello, {{ currentUser?.name }}!</h1>
-        </div>
-      </div>
-    </section>
-    
-    <div class="columns">
-      <div class="column is-6">
-        <div class="box">
-          <h3 class="title is-4">Activity Summary</h3>
-          <p>You have completed <strong>{{ stats.totalActivities }}</strong> activities.</p>
-          <p>Total distance: <strong>{{ stats.totalDistance }}</strong> miles</p>
-          <p>Total time spent: <strong>{{ stats.totalDuration }}</strong> minutes</p>
-          
-          <div class="buttons mt-4">
-            <router-link to="/activities" class="button is-primary">
-              View Activities
-            </router-link>
-            <router-link to="/statistics" class="button is-info">
-              View Stats
-            </router-link>
-          </div>
-        </div>
-      </div>
-      
-      <div class="column is-6">
-        <div class="box">
-          <h3 class="title is-4">Quick Add Activity</h3>
-          <ActivityForm :compact="true" />
-        </div>
+    <button class="button is-primary" @click="form = true">Add New Activity</button>
+    <div v-if="form" class="modal is-active">
+      <div class="modal-background" @click="form = false"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">New Activity</p>
+          <button class="delete" aria-label="close" @click="form = false"></button>
+        </header>
+        <section class="modal-card-body">
+          <PostForm @cancel="form = false" />
+        </section>
       </div>
     </div>
-    
-    <div class="box">
-      <h3 class="title is-4">Recent Friend Activities</h3>
-      <div v-if="friendsActivities.length > 0">
-        <div v-for="activity in friendsActivities.slice(0, 3)" :key="activity.id" class="notification">
-          <p>
-            <strong>{{ getUserName(activity.userId) }}</strong> completed a
-            {{ activity.type.toLowerCase() }} for {{ activity.distance }} {{ activity.distanceUnit }}
-            on {{ formatDate(activity.date) }}
-          </p>
-        </div>
-        <div class="has-text-centered mt-4">
-          <router-link to="/friends" class="button is-info">
-            View All Friend Activities
-          </router-link>
-        </div>
-      </div>
-      <p v-else>No recent activities from your friends.</p>
+
+    <div>
+      <ul>
+        <li v-for="(post, index) in posts.items" :key="index">
+          <div class="box">
+            <article class="media">
+              <div class="media-left">
+                <figure class="image is-64x64 is-square">
+                </figure>
+              </div>
+              <div class="media-content">
+                <div class="content">
+                  <p>
+                    <strong>{{ post.username }}</strong>
+                    &nbsp; <small>@{{ post.email }}</small> &nbsp;
+                    <small>{{ post.date }}</small>
+                  </p>
+                  <h4>{{ post.title }}</h4>
+                  <div class="post-details">
+                    <div>
+                      <p>EXERCISE TYPE</p>
+                      <h1>{{ post.type }}</h1>
+                    </div>
+                    <div>
+                      <p>DURATION</p>
+                      <h1>{{ post.duration }} minutes</h1>
+                    </div>
+                    <div v-if="post.date">
+                      <p>DATE</p>
+                      <h1>{{ post.date }}</h1>
+                    </div>
+                    <div v-if="post.location">
+                      <p>LOCATION</p>
+                      <h1>{{ post.location }}</h1>
+                    </div>
+                    <div v-if="post.distance">
+                      <p>DISTANCE</p>
+                      <h1>{{ post.distance }} meters</h1>
+                    </div>
+                  </div>
+
+                  <nav class="level is-mobile">
+                    <div class="level-left">
+                      <a class="level-item" aria-label="reply">
+                        <span class="icon is-small">
+                          <i class="fas fa-reply" aria-hidden="true"></i>
+                        </span>
+                      </a>
+                      <a class="level-item" aria-label="retweet">
+                        <span class="icon is-small">
+                          <i class="fas fa-retweet" aria-hidden="true"></i>
+                        </span>
+                      </a>
+                      <a class="level-item" aria-label="like">
+                        <span class="icon is-small">
+                          <i class="fas fa-heart" aria-hidden="true"></i>
+                        </span>
+                      </a>
+                      <a class="level-item" aria-label="delete" @click="deletePost(post.postId)">
+                        <span class="icon is-small">
+                          <i class="fas fa-trash" aria-hidden="true"></i>
+                        </span>
+                      </a>
+                    </div>
+                  </nav>
+                </div>
+              </div>
+            </article>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useAuth } from '../models/user'
-import { useActivities } from '../models/activity'
-import ActivityForm from '../components/ActivityForm.vue'
+import { ref } from 'vue'
+import { type DataListEnvelope } from '@/models/dataEnvelopes'
+import { get, remove, type Post } from '@/models/posts'
+import { useRoute } from 'vue-router'
+import { isLoggedIn, useSession } from '@/models/session'
+import PostForm from '@/components/StaticsticPost.vue'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
 
-const { currentUser, getUserById } = useAuth()
-const { getActivityStats, getFriendsActivities } = useActivities()
+dayjs.extend(relativeTime)
 
-const stats = getActivityStats
-const friendsActivities = getFriendsActivities
+const form = ref(false)
+const posts = ref({} as DataListEnvelope<Post>)
+const session = useSession()
 
-const getUserName = (userId: number): string => {
-  const user = getUserById(userId)
-  return user ? user.name : 'Unknown User'
+if (session.value.user) {
+  get(session.value.user.userId).then((response) => {
+    posts.value = response
+  })
 }
 
-const formatDate = (dateString: Date | string): string => {
-  const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric',timeZone:'UTC' }
-  return new Date(dateString).toLocaleDateString(undefined, options);
+async function deletePost(postId: number) {
+  const response = await remove(postId)
+  posts.value?.items.splice(
+    posts.value.items.findIndex((post) => post.postId === postId),
+    1,
+  )
 }
 </script>
 

@@ -1,5 +1,6 @@
 const { connect } = require('./supabase')
 const { CustomError, statusCodes } = require('./errors')
+const data = require('../data/activity.json')
 
 const TABLE_NAME = 'activities'
 

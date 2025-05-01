@@ -1,117 +1,134 @@
+<!-- LoginForm.vue -->
 <template>
-  <form @submit.prevent="handleLogin">
-    <div class="field">
-      <label class="label">Username</label>
-      <div class="control">
-        <input
-          class="input"
-          type="text"
-          v-model="username"
-          placeholder="Enter your username"
-          required
-        >
+  <!-- Logged in state -->
+  <div class="navbar-item has-dropdown is-hoverable" v-if="isLoggedIn()">
+    <a class="navbar-link">
+      <span class="icon is-small mr-1">
+        <i class="fas fa-user-circle"></i>
+      </span>
+      {{ session?.user?.username }}
+    </a>
+    
+    <div class="navbar-dropdown is-right">
+      <RouterLink to="/dashboard" class="navbar-item">
+        <span class="icon is-small mr-2">
+          <i class="fas fa-dumbbell"></i>
+        </span>
+        My Activity
+      </RouterLink>
+      <hr class="navbar-divider">
+      <a @click="logout()" class="navbar-item has-text-danger">
+        <span class="icon is-small mr-2">
+          <i class="fas fa-sign-out-alt"></i>
+        </span>
+        Logout
+      </a>
+    </div>
+  </div>
+
+  <!-- Admin access - only show if logged in and is admin -->
+  <div class="navbar-item" v-if="isLoggedIn() && isAdmin()">
+    <RouterLink to="/admin" class="button is-light is-small">
+      <span class="icon is-small">
+        <i class="fas fa-shield-alt"></i>
+      </span>
+      <span>Admin</span>
+    </RouterLink>
+  </div>
+  
+  <!-- Logged out state -->
+  <template v-if="!isLoggedIn()">
+    <div class="navbar-item">
+      <div class="buttons">
+        <RouterLink to="/register" class="button is-primary is-small">
+          <span class="icon is-small">
+            <i class="fas fa-user-plus"></i>
+          </span>
+          <span>Sign up</span>
+        </RouterLink>
+        
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="button is-light is-small navbar-link">
+            <span>Login</span>
+            <span class="icon is-small ml-1">
+              <i class="fas fa-angle-down"></i>
+            </span>
+          </a>
+          
+          <div class="navbar-dropdown is-right">
+            <p class="navbar-item is-size-7 has-text-grey">
+              Quick Login
+            </p>
+            <template v-for="user in users" :key="user.userId">
+              <a class="navbar-item" @click="login(user.userId)">
+                <span class="icon is-small mr-2">
+                  <i class="fas fa-user"></i>
+                </span>
+                {{ user.username }}
+              </a>
+            </template>
+            <hr class="navbar-divider">
+            <RouterLink to="/login" class="navbar-item">
+              <span class="icon is-small mr-2">
+                <i class="fas fa-key"></i>
+              </span>
+              Login with password
+            </RouterLink>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="field">
-      <label class="label">Password</label>
-      <div class="control">
-        <input
-          class="input"
-          type="password"
-          v-model="password"
-          placeholder="Enter your password"
-          required
-        >
-      </div>
-    </div>
-    <div v-if="error" class="notification is-danger">
-      {{ error }}
-    </div>
-    <div class="field">
-      <div class="control">
-        <button class="button is-primary is-fullwidth" :disabled="isLoading">
-          {{ isLoading ? 'Logging in...' : 'Log in' }}
-        </button>
-      </div>
-    </div>
-    <div class="has-text-centered mt-4">
-      <button type="button" class="button is-text is-small"
-        @click="showCredentials = !showCredentials">
-        {{ showCredentials ? 'Hide demo accounts' : 'Show demo accounts' }}
-      </button>
-      
-      <div v-if="showCredentials" class="mt-2">
-        <p>
-          <strong>Demo accounts:</strong>
-        </p>
-        <ul class="mt-2">
-          <li>Admin: username: cle20, password: cesarle</li>
-          <li>User: username: jewpaltz, password: professor</li>
-          <li>User: username: jngo, password: johnnyngo</li>
-          <li>User: username: thunguyen, password: mabu </li>
-        </ul>
-      </div>
-    </div>
-    <div class="has-text-centered mt-4">
-      <p class="mb-2">Don't have an account?</p>
-      <router-link
-        to="/register"
-        class="button is-link is-light"
-      >
-        Register Now
-      </router-link>
-    </div>
-  </form>
+  </template>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useAuth } from '../models/user'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { isAdmin, isLoggedIn, login, logout, useSession } from '@/models/session'
+import { getAll, type User } from '@/models/user'
 
-const router = useRouter()
-const { login } = useAuth()
-const username = ref('')
-const password = ref('')
-const error = ref('')
-const showCredentials = ref(false)
-const isLoading = ref(false)
+const users = ref<User[]>([])
+const session = useSession()
 
-const handleLogin = async () => {
-  error.value = ''
-  isLoading.value = true
-  
-  try {
-    const success = await login(username.value, password.value)
-   
-    if (success) {
-      console.log('Login success:', success) 
-      router.push('/dashboard') // Changed from '/' to '/dashboard'
-    } else {
-      error.value = 'Invalid username or password'
-      setTimeout(() => {
-        error.value = ''
-      }, 3000)
-    }
-  } catch (err) {
-    error.value = 'An error occurred during login'
-    setTimeout(() => {
-      error.value = ''
-    }, 3000)
-  } finally {
-    isLoading.value = false
-  }
-}
+onMounted(() => {
+  // Fetch users for quick login dropdown
+  getAll().then((response) => {
+    users.value = response.items
+  })
+})
 </script>
 
 <style scoped>
-.mt-2 {
-  margin-top: 0.5rem;
+.mr-1 {
+  margin-right: 0.25rem;
 }
-.mb-2 {
-  margin-bottom: 0.5rem;
+
+.mr-2 {
+  margin-right: 0.5rem;
 }
-.mt-4 {
-  margin-top: 1.5rem;
+
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
+/* Ensure dropdown menus don't get cut off */
+.navbar-dropdown {
+  min-width: 200px;
+}
+
+/* Make buttons more compact in navbar */
+.button.is-small {
+  height: 2.2rem;
+}
+
+/* Fix icon alignment */
+.icon.is-small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Smooth transitions */
+.button, .navbar-item {
+  transition: background-color 0.2s ease;
 }
 </style>

@@ -1,13 +1,10 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { useAuth } from '../models/user'
+
 import HomePage from '../pages/HomePage.vue'
 import LoginPage from '../pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
-import ActivityPage from '../pages/ActivityPage.vue'
-import FriendsPage from '../pages/FriendsPage.vue'
 import StatisticsPage from '../pages/StatisticPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
-import ProfilePage from '../pages/ProfilePage.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -33,27 +30,9 @@ const routes: Array<RouteRecordRaw> = [
     meta: { requiresGuest: true }
   },
   {
-    path: '/activities',
-    name: 'activities',
-    component: ActivityPage,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/friends',
-    name: 'friends',
-    component: FriendsPage,
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/statistics',
     name: 'statistics',
     component: StatisticsPage,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/profile',
-    name: 'profile',
-    component: ProfilePage,
     meta: { requiresAuth: true }
   },
   {
@@ -62,54 +41,13 @@ const routes: Array<RouteRecordRaw> = [
     component: AdminPage,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
-  {
-    path: '/logout',
-    name: 'logout',
-    redirect: () => {
-
-      const { logout } = useAuth()
-
-      logout()
-      
-      return '/login'
-    }
-  }
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
 })
 
-router.beforeEach((to, _, next) => {
 
-  const { isLoggedIn, currentUser } = useAuth()
-  
-  if (to.meta.requiresGuest) {
-    if (isLoggedIn.value) {
-
-      next('/dashboard')
-    } else {
-
-      next()
-    }
-    return
-  }
-
-  if (to.meta.requiresAuth) {
-    if (!isLoggedIn.value) {
-  
-      next('/login')
-      return
-    }
-    
-    if (to.meta.requiresAdmin && currentUser.value?.role !== 'admin') {
-      next('/dashboard')
-      return
-    }
-  }
-  
-  next()
-})
 
 export default router

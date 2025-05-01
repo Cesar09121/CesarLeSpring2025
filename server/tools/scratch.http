@@ -11,7 +11,7 @@ Content-Type: application/json
 
 {
     "username": "cle20",
-    "password": "cesarle"
+    "password": "password123"
 }
 
 
@@ -51,16 +51,17 @@ Content-Type: application/json
 {
     "username": "motte",
     "password": "cesarle",
+    "email": "cle@gmail.com",  
     "name": "Tutty Motte",
     "role": "user"
 }
 
 ### Update User
-PATCH http://localhost:3000/api/v1/user/24
+PATCH http://localhost:3000/api/v1/user/1
 Content-Type: application/json
 
 {
-    "username": "pattyle25",
+    "username": "cle20",
     "password": "111111cesar"
 }
 
@@ -73,16 +74,12 @@ POST http://localhost:3000/api/v1/activity
 Content-Type: application/json
 
 {
-    "user_id": 24,
-    "type": "Walk",
-    "distance": 5.0,
-    "distance_unit": "km",
-    "duration": 30,
-    "date": "2025-05-25",
-    "location": {
-        "lat": 41.7459793,
-        "lng": -74.082801
-    }
+  "userId": 1,
+  "type": "Running",
+  "distance": 5.2,
+  "duration": 45,
+  "date": "2025-05-01T08:30:00Z",
+  "location": "Central Park, New York"
 }
 ### Get Activity by ID
 GET http://localhost:3000/api/v1/activity/2
@@ -92,7 +89,7 @@ PATCH http://localhost:3000/api/v1/activity/18
 Content-Type: application/json
 
 {
-    "user_id": 24,
+    "user_id": 33,
     "type": "Swim",
     "distance": 3.0,
     "distance_unit": "km",

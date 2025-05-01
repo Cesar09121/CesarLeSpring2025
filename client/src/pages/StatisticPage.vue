@@ -1,148 +1,48 @@
 <template>
-  <div class="statistics">
-    <h1 class="title">Statistics</h1>
-    
-    <div v-if="!hasActivities" class="notification is-info">
-      You haven't logged any activities yet. Add some workouts to see your statistics.
-    </div>
-    
-    <div v-else>
-      <div class="columns is-multiline">
-        <div class="column is-3">
-          <div class="box has-text-centered">
-            <p class="heading">Total Activities</p>
-            <p class="title">{{ stats.totalActivities }}</p>
-          </div>
-        </div>
-        
-        <div class="column is-3">
-          <div class="box has-text-centered">
-            <p class="heading">Total Distance</p>
-            <p class="title">{{ stats.totalDistance }} mi</p>
-          </div>
-        </div>
-        
-        <div class="column is-3">
-          <div class="box has-text-centered">
-            <p class="heading">Total Duration</p>
-            <p class="title">{{ formatDuration(stats.totalDuration) }}</p>
-          </div>
-        </div>
-        
-        <div class="column is-3">
-          <div class="box has-text-centered">
-            <p class="heading">Avg Duration</p>
-            <p class="title">{{ stats.avgDuration }} min</p>
-          </div>
-        </div>
+  <div class="stats">
+    <h1 class="title is-3"><b>Recent Activities</b></h1>
+
+    <div class="box" v-if="isLoggedIn()">
+      <div class="activity-item">
+        <p>EXERCISE TYPE</p>
+        <h1>{{ activity?.type }}</h1>
       </div>
-      
-      <div class="columns">
-        <div class="column is-6">
-          <div class="box">
-            <h3 class="title is-5">Activity Types</h3>
-            <table class="table is-fullwidth">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Count</th>
-                  <th>Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(count, type) in stats.activityBreakdown" :key="type">
-                  <td>{{ type }}</td>
-                  <td>{{ count }}</td>
-                  <td>
-                    <progress
-                      class="progress is-primary"
-                      :value="count"
-                      :max="stats.totalActivities"
-                    ></progress>
-                    {{ calcPercentage(count) }}%
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <div class="column is-6">
-          <div class="box">
-            <h3 class="title is-5">Recent Activities</h3>
-            <div v-if="recentActivities.length === 0" class="has-text-centered">
-              <p>No activities to display</p>
-            </div>
-            <div v-else>
-              <table class="table is-fullwidth">
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Date</th>
-                    <th>Distance</th>
-                    <th>Duration</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="activity in recentActivities" :key="activity.id">
-                    <td>{{ activity.type }}</td>
-                    <td>{{ formatDate(activity.date) }}</td>
-                    <td>{{ activity.distance }} {{ activity.distanceUnit }}</td>
-                    <td>{{ activity.duration }} min</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+      <div class="activity-item">
+        <p>DURATION</p>
+        <h1>{{ activity?.duration }} minutes</h1>
       </div>
+      <div class="activity-item">
+        <p>DATE</p>
+        <h1>{{ activity?.date }}</h1>
+      </div>
+      <div class ="activity-item">
+        <p>LOCATION</p>
+        <h1>{{ activity?.location }}</h1>
     </div>
+    <div class="activity-item">
+        <p>DISTANCE</p>
+        <h1>{{ activity?.distance }} meters</h1>
+      </div>
   </div>
+  </div>  
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useActivities } from '../models/activity'
+import {ref} from 'vue'
+import {get, type Activity} from '@/models/activity'
+import { isLoggedIn, useSession } from '@/models/session'
+import dayjs from 'dayjs'
+import realTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(realTime)
 
-const { getActivityStats, getUserActivities } = useActivities()
+const session = useSession()
 
-const stats = getActivityStats
-
-const hasActivities = computed(() =>
-  stats.value.totalActivities && stats.value.totalActivities > 0
-)
-
-const recentActivities = computed(() => {
-  return getUserActivities.value.slice(0, 5)
-})
-
-const formatDuration = (minutes: number) => {
-  if (minutes < 60) {
-    return `${minutes} min`
-  }
-  
-  const hours = Math.floor(minutes / 60)
-  const remainingMins = minutes % 60
-  
-  if (remainingMins === 0) {
-    return `${hours} hr`
-  }
-  
-  return `${hours} hr ${remainingMins} min`
-}
-
-const calcPercentage = (count: number) => {
-  return Math.round((count / stats.value.totalActivities) * 100)
-}
-
-const formatDate = (date: Date | string) => {
-  if (typeof date === 'string') {
-    date = new Date(date)
-  }
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    timeZone: 'UTC'
+const activity = ref({}as Activity)
+if(session.value.user){
+  get(session.value.user.userId).then((response) => {
+    activity.value = response.items[0]
   })
 }
+
+
 </script>

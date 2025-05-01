@@ -1,70 +1,64 @@
--- Create Users Table
+-- Drop existing tables if needed (uncomment to use)
+ DROP TABLE IF EXISTS posts CASCADE;
+ DROP TABLE IF EXISTS activities CASCADE;
+ DROP TABLE IF EXISTS users CASCADE;
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    password VARCHAR(100) NOT NULL,
-    role VARCHAR(20) CHECK (role IN ('admin', 'user')) DEFAULT 'user',
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    username VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create Friends Table
-CREATE TABLE friends (
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    friend_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, friend_id)
-);
+CREATE INDEX idx_users_username ON users(username);
 
-
-
--- Create Activities Table
 CREATE TABLE activities (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    type VARCHAR(50) NOT NULL,
-    distance DECIMAL(10,2) NOT NULL,
-    distance_unit VARCHAR(10) NOT NULL,
+    userId INTEGER NOT NULL,
+    type VARCHAR(100) NOT NULL,
     duration INTEGER NOT NULL,
-    date TIMESTAMPTZ NOT NULL,
-    location JSONB,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+    distance DECIMAL(10,2),
+    location VARCHAR(255),
+    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
 );
 
-INSERT INTO users (id, username, password, name, role)
-VALUES (1, 'cle20', 'hashed_password', 'Cesar Le', 'admin');
+CREATE INDEX idx_activities_userId ON activities(userId);
 
--- Insert Sample Users
-INSERT INTO users (username, name, password, role) VALUES
-('cle20', 'Cesar Le', 'cesarle', 'admin'),
-('jewpaltz', 'Rabbi Moshe Plotkin', 'professor', 'user'),
-('jngo', 'Johnny Ngo', 'johnnyngo', 'user'),
-('thunguyen', 'Thu Nguyen', 'mabu', 'user');
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    userId INTEGER NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    type VARCHAR(100) NOT NULL,
+    content TEXT,
+    duration INTEGER NOT NULL,
+    distance DECIMAL(10,2),
+    location VARCHAR(255),
+    date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE
+);
 
--- Insert Friend Relationships
-INSERT INTO friends (user_id, friend_id) VALUES
-(1, 2), (1, 3),
-(2, 1), (2, 3),
-(3, 1), (3, 2),
-(4, 1), (4, 4);
+CREATE INDEX idx_posts_date ON posts(date);
 
--- Insert Sample Activities
-INSERT INTO activities (user_id, type, distance, distance_unit, duration, date, location) VALUES
-(1, 'Run', 3.1, 'mi', 30, '2025-02-20 10:00:00', 
-    jsonb_build_object('lat', 41.7459793, 'lng', -74.082801)),
-(2, 'Walk', 1.2, 'mi', 45, '2025-02-15 15:30:00',
-    jsonb_build_object('lat', 41.7459793, 'lng', -74.082801)),
-(1, 'Cycle', 15.5, 'km', 60, '2025-02-18 14:00:00',
-    jsonb_build_object('lat', 41.7459793, 'lng', -74.082801)),
-(3, 'Swim', 1000, 'm', 35, '2025-02-19 11:15:00',
-    jsonb_build_object('lat', 41.7459793, 'lng', -74.082801));
+INSERT INTO users (username, name, email, password, role) VALUES
+('cle20', 'Cesar Le', 'cle20@example.com', 'password123', 'admin'),
+('jewpaltz', 'Moshe Plotkin', 'jewpaltz@example.com', 'password123', 'user'),
+('jngo', 'Johnny Ngo', 'jngo@example.com', 'password123', 'user'),
+('thunguyen', 'Thu Nguyen', 'thunguyen@example.com', 'password123', 'user');
 
+INSERT INTO activities (userId, type, duration, distance, location, date) VALUES
+(1, 'Running', 30, 3.1, 'New Paltz Trail', CURRENT_TIMESTAMP - INTERVAL '2 days'),
+(2, 'Walking', 45, 1.2, 'SUNY New Paltz', CURRENT_TIMESTAMP - INTERVAL '3 days'),
+(1, 'Cycling', 60, 15.5, 'Hudson Valley Rail Trail', CURRENT_TIMESTAMP - INTERVAL '1 day'),
+(3, 'Swimming', 35, 1.0, 'Athletic Center', CURRENT_TIMESTAMP - INTERVAL '4 days');
 
-
--- Enable Row Level Security
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE friends ENABLE ROW LEVEL SECURITY;
-ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+INSERT INTO posts (userId, username, type, content, duration, distance, location, date) VALUES
+(1, 'cle20', 'Running', 'Morning run at the park. Beautiful day!', 30, 3.1, 'New Paltz Trail', CURRENT_TIMESTAMP - INTERVAL '2 days'),
+(2, 'jewpaltz', 'Walking', 'Evening stroll around campus. Lovely sunset today.', 45, 1.2, 'SUNY New Paltz', CURRENT_TIMESTAMP - INTERVAL '3 days'),
+(3, 'jngo', 'Swimming', 'Great swimming session. Improved my lap time!', 35, 1.0, 'Athletic Center', CURRENT_TIMESTAMP - INTERVAL '4 days');

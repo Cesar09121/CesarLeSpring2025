@@ -37,7 +37,7 @@ app.use('/api/v1/activity', activityController)
 
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../client/dist/index.html'))
+        res.sendFile(path.join(__dirname, '../client/index.html'))
     }
 })
 

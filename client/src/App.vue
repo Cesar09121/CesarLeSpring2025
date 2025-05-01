@@ -1,17 +1,16 @@
 <template>
   <div id="app">
-    <Navbar v-if="isLoggedIn" />
+    <Navbar />
     <div class="container is-fluid mt-4">
-      <router-view />
+      <RouterView />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import Navbar from './components/Navbar.vue'
-import { useAuth } from './models/user'
+import { RouterView} from 'vue-router'
 
-const { isLoggedIn } = useAuth()
 </script>
 
 <style>
