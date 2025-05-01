@@ -49,9 +49,9 @@ POST http://localhost:3000/api/v1/user
 Content-Type: application/json
 
 {
-    "username": "cle10001111",
+    "username": "motte",
     "password": "cesarle",
-    "name": "Tu Le",
+    "name": "Tutty Motte",
     "role": "user"
 }
 

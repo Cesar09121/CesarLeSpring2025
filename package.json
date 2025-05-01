@@ -6,9 +6,10 @@
     "scripts": {
         "start": "node server/index.js",
         "dev": "nodemon server/index.js",
-        "build": "cd client && pnpm install && pnpm run build && mkdir -p ../dist && cp -r dist/* ../dist/",
+        "build": "pnpm --prefix client i && pnpm run build:client",
         "postbuild": "echo 'Build completed successfully'",
-        "prod": "pnpm run build && pnpm start"
+        "prod": "pnpm run build && pnpm start",
+        "build client": "pnpm run --prefix client build"
     },
     "license": "ISC",
     "dependencies": {
