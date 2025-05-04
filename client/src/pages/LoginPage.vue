@@ -41,8 +41,9 @@
 
 <script setup lang="ts">
 import type { DataListEnvelope } from '@/models/dataEnvelopes'
-import { login } from '@/models/session'
+import { loginFunction } from '@/models/session'
 import { getAll, type User } from '@/models/user'
+import router from '@/router'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import { ref } from 'vue'
@@ -63,7 +64,14 @@ getAll().then((response) => {
 async function changeUser() {
   const user = users.value.items.find((user) => user.username === newUser.value.username)
   if (user && user.password === newUser.value.password) {
-    login(user.userId)
+    loginFunction(user)
+    .then((data : any) =>{
+      if(data.success == true){
+        router.push('statistics')
+      }
+    }
+
+  )
   }
 }
 async function loginSubmit() {

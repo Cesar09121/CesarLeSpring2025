@@ -1,4 +1,3 @@
-<!-- StaticPost.vue -->
 <template>
   <div class="box">
     <h2 class="title is-4 mb-4">Add New Activity</h2>

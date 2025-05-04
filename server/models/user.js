@@ -130,7 +130,7 @@ async function seed(){
   }
 
   try {
-    // Check if users already exist
+  
     const { data: existingUsers, error: checkError } = await connect()
       .from(TABLE_NAME)
       .select('username');

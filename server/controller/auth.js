@@ -1,4 +1,3 @@
-// server/controller/auth.js
 const express = require('express')
 const router = express.Router()
 const model = require('../models/user')
@@ -9,7 +8,6 @@ router
     
     const { username, password } = req.body
     
-    // Add extensive logging
     console.log(`Attempting login for username: ${username}`)
     
     model.login(username, password)

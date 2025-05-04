@@ -41,7 +41,7 @@
           </RouterLink>
           <RouterLink to="/friends" class="navbar-item">
             <span class="icon is-small mr-1"><i class="fas fa-users"></i></span>
-            <span>Friends</span>
+            <span>Friends Activity</span>
           </RouterLink>
           <RouterLink to="/statistics" class="navbar-item">
             <span class="icon is-small mr-1"><i class="fas fa-chart-bar"></i></span>

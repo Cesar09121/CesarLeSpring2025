@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import * as myFetch from './myFetch'
-import {get , type User} from './user'
+import {login , type User} from './user'
 
 
 export function api<T>(
@@ -25,10 +25,10 @@ export const isAdmin = () => session.value.user?.admin ?? false
 export const isLoggedIn = () => session.value.user !== null
 
 
-export function login(id: number) {
-  console.log('login', id)
-  return get(id).then((user) => {
+export function loginFunction({username, password } :{username : string, password : string}) {
+  return login({username, password}).then((user) => {
     session.value.user = user
+    return user
   })
 }
 export function logout() {

@@ -5,6 +5,7 @@ import LoginPage from '../pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import StatisticsPage from '../pages/StatisticPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import FriendActivityPage from '@/pages/FriendActivityPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -41,6 +42,12 @@ const routes: Array<RouteRecordRaw> = [
     component: AdminPage,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
+  {
+    path: '/friendActivity',
+    name : 'friendActivity',
+    component: FriendActivityPage,
+    meta:{requiresAuth: true}
+  }
 ]
 
 const router = createRouter({

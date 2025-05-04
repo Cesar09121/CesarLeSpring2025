@@ -60,7 +60,7 @@
               Quick Login
             </p>
             <template v-for="user in users" :key="user.userId">
-              <a class="navbar-item" @click="login(user.userId)">
+              <a class="navbar-item" @click="loginFunction(user)">
                 <span class="icon is-small mr-2">
                   <i class="fas fa-user"></i>
                 </span>
@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { isAdmin, isLoggedIn, login, logout, useSession } from '@/models/session'
+import { isAdmin, isLoggedIn, loginFunction, logout, useSession } from '@/models/session'
 import { getAll, type User } from '@/models/user'
 
 const users = ref<User[]>([])

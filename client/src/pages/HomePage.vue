@@ -93,7 +93,6 @@
 import { ref } from 'vue'
 import { type DataListEnvelope } from '@/models/dataEnvelopes'
 import { get, remove, type Post } from '@/models/posts'
-import { useRoute } from 'vue-router'
 import { isLoggedIn, useSession } from '@/models/session'
 import PostForm from '@/components/StaticsticPost.vue'
 import dayjs from 'dayjs'

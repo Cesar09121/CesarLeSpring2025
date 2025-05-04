@@ -1,6 +1,36 @@
 ###
 ## Testing API Endpoints
 
+
+########################
+# Users Controller
+########################
+
+
+### Create New User
+POST http://localhost:3000/api/v1/user
+Content-Type: application/json
+
+{
+    "username": "le",
+    "password": "cesarle",
+    "email": "clee@gmail.com",  
+    "name": "Tutte",
+    "role": "user"
+}
+
+### Update User
+PATCH http://localhost:3000/api/v1/user/1
+Content-Type: application/json
+
+{
+    "username": "cle20",
+    "password": "111111cesar"
+}
+
+### Delete User
+DELETE http://localhost:3000/api/v1/user/31
+
 ########################
 # Auth Controller
 ########################
@@ -42,33 +72,6 @@ Content-Type: application/json
 GET http://localhost:3000/api/v1/activity
 
 
-
-
-### Create New User
-POST http://localhost:3000/api/v1/user
-Content-Type: application/json
-
-{
-    "username": "motte",
-    "password": "cesarle",
-    "email": "cle@gmail.com",  
-    "name": "Tutty Motte",
-    "role": "user"
-}
-
-### Update User
-PATCH http://localhost:3000/api/v1/user/1
-Content-Type: application/json
-
-{
-    "username": "cle20",
-    "password": "111111cesar"
-}
-
-### Delete User
-DELETE http://localhost:3000/api/v1/user/31
-
-
 ### Create New Activity
 POST http://localhost:3000/api/v1/activity
 Content-Type: application/json
@@ -92,7 +95,6 @@ Content-Type: application/json
     "user_id": 33,
     "type": "Swim",
     "distance": 3.0,
-    "distance_unit": "km",
     "duration": 45,
     "date": "2025-05-25",
     "location": {
@@ -105,6 +107,9 @@ Content-Type: application/json
 DELETE http://localhost:3000/api/v1/activity/19
 
 
-
-
+########################
+# Post Controller
+########################
+### Get Posts
+GET http://localhost:3000/api/v1/posts/1
 

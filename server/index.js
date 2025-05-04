@@ -9,6 +9,7 @@ const authController = require('./controller/auth')
 
 
 
+
 const app = express()
 const PORT = process.env.PORT ?? 3000
 
@@ -32,7 +33,7 @@ app.use((req, res, next) => {
 // Routes
 
 app.use('/api/v1/auth', authController)
-app.use('/api/v1/user', userController)
+app.use('/api/v1/users', userController)
 app.use('/api/v1/activity', activityController)
 
 app.get('*', (req, res) => {
@@ -40,6 +41,13 @@ app.get('*', (req, res) => {
         res.sendFile(path.join(__dirname, '../client/index.html'))
     }
 })
+
+app.get('/api/v1/test', (req, res) => {
+    console.log('Test endpoint hit')
+    res.json({ message: 'Server is working' })
+  })
+  
+  
 
 
 

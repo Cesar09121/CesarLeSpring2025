@@ -27,7 +27,9 @@ export function create(data: User) {
 export function remove(userId: number): Promise<void> {
   return api(`users/${userId}`, {}, 'DELETE');
 }
-
+export function login({username, password } :{username : string, password : string}) {
+  return api<User>('auth/login', {username, password })
+}
 
 
 

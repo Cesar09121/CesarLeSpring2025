@@ -3,6 +3,8 @@ const { CustomError, statusCodes } = require('./errors')
 const data = require('../data/activity.json')
 
 const TABLE_NAME = 'activities'
+isAdmin = true
+
 
 
 const BaseQuery = () => connect()
@@ -100,25 +102,6 @@ async function remove(id) {
   return deletedActivity
 }
 
-async function getStats(userId) {
-  const { data, error } = await BaseQuery()
-    .eq('user_id', userId)
-
-  if (error) {
-    throw error
-  }
-
-  return {
-    totalActivities: data.length,
-    totalDistance: data.reduce((sum, curr) => sum + curr.distance, 0),
-    totalDuration: data.reduce((sum, curr) => sum + curr.duration, 0),
-    avgDuration: data.reduce((sum, curr) => sum + curr.duration, 0) / data.length || 0,
-    activityBreakdown: data.reduce((acc, curr) => {
-      acc[curr.type] = (acc[curr.type] || 0) + 1
-      return acc
-    }, {})
-  }
-}
 async function seed() {
   console.log('Starting activity seed process...');
   
