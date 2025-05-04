@@ -8,28 +8,33 @@
 
 
 ### Create New User
-POST http://localhost:3000/api/v1/user
+POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "username": "le",
+    "username": "cesar11",
     "password": "cesarle",
-    "email": "clee@gmail.com",  
+    "email": "cleeee1@gmail.com",  
     "name": "Tutte",
-    "role": "user"
+    "role": "admin"
 }
 
 ### Update User
-PATCH http://localhost:3000/api/v1/user/1
+PATCH http://localhost:3000/api/v1/users/1
 Content-Type: application/json
 
 {
     "username": "cle20",
-    "password": "111111cesar"
+    "password": "cesar"
 }
 
+### Get All Users
+GET http://localhost:3000/api/v1/users
+
+
+
 ### Delete User
-DELETE http://localhost:3000/api/v1/user/31
+DELETE http://localhost:3000/api/v1/users/31
 
 ########################
 # Auth Controller
@@ -40,8 +45,8 @@ POST http://localhost:3000/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "username": "cle20",
-    "password": "password123"
+    "username": "cle",
+    "password": "12345678"
 }
 
 
@@ -54,10 +59,6 @@ POST http://localhost:3000/api/v1/auth/logout
 
 ### Seed Users
 POST http://localhost:3000/api/v1/user/seed
-
-### Get All Users
-GET http://localhost:3000/api/v1/user
-
 
 ########################
 # Activities Controller
@@ -77,7 +78,7 @@ POST http://localhost:3000/api/v1/activity
 Content-Type: application/json
 
 {
-  "userId": 1,
+  "userId": 13,
   "type": "Running",
   "distance": 5.2,
   "duration": 45,
@@ -128,18 +129,18 @@ GET http://localhost:3000/api/v1/posts
 GET http://localhost:3000/api/v1/posts/1
 
 ### Update Posts
-PATCH http://localhost:3000/api/v1/posts/1
+PATCH http://localhost:3000/api/v1/posts/7
 Content-Type: application/json
- {
-      "userId": 1,
-      "username": "cle20",
-      "type": "Running",
-      "content": "Afernoon run at the park. Beautiful day!",
-      "duration": 30,
-      "distance": 3.5,
-      "location": "New Paltz Trail"
 
-    }
+{
+  "userId": 1,
+  "username": "cle20",
+  "type": "Running",
+  "content": "Afternoon run at the park. Beautiful day!",
+  "duration": 300,
+  "distance": 3.5,
+  "location": "New Paltz Trail"
+}
 
 ### Delete Posts
 DELETE http://localhost:3000/api/v1/posts/6

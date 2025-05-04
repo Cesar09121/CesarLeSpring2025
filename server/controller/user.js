@@ -42,8 +42,12 @@ router
     })
     
     .put('/:id', async (req, res, next) => {
-        const updateUser = await update(req.params.id, req.body)
-        res.json(updateUser)
+        try {
+            const updateUser = await model.update(req.params.id, req.body)
+            res.json(updateUser)
+        } catch (err) {
+            next(err)
+        }
     })
     .post('/seed', async (req, res, next) => {
         try {

@@ -2,27 +2,65 @@
 import type { DataListEnvelope } from '@/models/dataEnvelopes'
 import { getAll, type Post } from '@/models/posts'
 import dayjs from 'dayjs'
-import realTime from 'dayjs/plugin/relativeTime'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { ref } from 'vue'
 
-dayjs.extend(realTime)
+dayjs.extend(relativeTime)
 
-const posts = ref({} as DataListEnvelope<Post>)
-
-getAll().then((response) => {
-  posts.value = response
+const posts = ref<DataListEnvelope<Post>>({ 
+  items: [], 
+  total: 0,
+  skip: 0,
+  limit: 0
 })
+const loading = ref(true)
+const error = ref('')
+
+console.log('FriendActivityPage component initializing')
+
+getAll()
+  .then((response) => {
+    console.log('API response:', response)
+    posts.value = response
+    console.log('Posts loaded:', posts.value.items?.length || 0)
+    loading.value = false
+  })
+  .catch((err) => {
+    console.error('Error fetching posts:', err)
+    error.value = 'Failed to load activities: ' + (err.message || 'Unknown error')
+    loading.value = false
+  })
+
+function formatDate(dateString: string | undefined) {
+  if (!dateString) return 'Unknown date'
+  const date = dayjs(dateString)
+  return date.isValid() ? date.fromNow() : dateString
+}
 </script>
 
 <template>
-  <h1 class="title is-3">All Activities</h1>
   <div>
-    <ul>
+    <h1 class="title is-3">All Activities</h1>
+    <div v-if="loading" class="has-text-centered my-4">
+      <p>Loading activities...</p>
+      <progress class="progress is-primary" max="100"></progress>
+    </div>
+    <div v-else-if="error" class="notification is-danger">
+      <p><strong>Error:</strong> {{ error }}</p>
+      <p class="is-size-7">Check browser console for more details.</p>
+    </div>
+    <div v-else-if="!posts.items || posts.items.length === 0" class="notification is-info">
+      <p>No activities found.</p>
+    </div>
+    <ul v-else>
       <li v-for="(post, index) in posts.items" :key="index">
         <div class="box">
           <article class="media">
             <div class="media-left">
               <figure class="image is-64x64 is-square">
+                <div class="has-background-primary has-text-white is-flex is-align-items-center is-justify-content-center" style="width: 100%; height: 100%;">
+                  {{ post.username ? post.username.charAt(0).toUpperCase() : 'U' }}
+                </div>
               </figure>
             </div>
             <div class="media-content">
@@ -30,22 +68,26 @@ getAll().then((response) => {
                 <p>
                   <strong>{{ post.username }}</strong>
                   &nbsp; <small>@{{ post.email }}</small> &nbsp;
-                  <small>{{ post.date }}</small>
+                  <small>{{ formatDate(post.date) }}</small>
                   <br />
                 </p>
-                <h4>{{ post.title }}</h4>
+                <h4 v-if="post.title">{{ post.title }}</h4>
                 <div class="post-details">
                   <div>
                     <p>EXERCISE</p>
-                    <h1>{{ post.type }}</h1>
+                    <h1>{{ post.type || 'N/A' }}</h1>
                   </div>
                   <div>
                     <p>DISTANCE</p>
-                    <h1>{{ post.distance }}</h1>
+                    <h1>{{ post.distance || 0 }} km</h1>
                   </div>
                   <div>
                     <p>DURATION</p>
-                    <h1>{{ post.duration }} minutes</h1>
+                    <h1>{{ post.duration || 0 }} minutes</h1>
+                  </div>
+                  <div v-if="post.location">
+                    <p>LOCATION</p>
+                    <h1>{{ post.location }}</h1>
                   </div>
                 </div>
               </div>
@@ -105,5 +147,34 @@ getAll().then((response) => {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.image.is-64x64.is-square {
+  overflow: hidden;
+}
+
+.is-flex {
+  display: flex;
+}
+
+.is-align-items-center {
+  align-items: center;
+}
+
+.is-justify-content-center {
+  justify-content: center;
+}
+
+.has-background-primary {
+  background-color: #209cee;
+}
+
+.has-text-white {
+  color: white;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 </style>

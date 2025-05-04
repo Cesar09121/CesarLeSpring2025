@@ -113,34 +113,27 @@ import realTime from 'dayjs/plugin/relativeTime'
 import { useSession } from '@/models/session'
 import { getAll as getActivity, update, create as createActivity, type Activity } from '@/models/activity'
 
-// Initialize dayjs extension
 dayjs.extend(realTime)
 
-// Get user session
 const session = useSession()
 const currentUser = session.value.user
 
-// Form data
 const newPost = ref<Partial<Post>>({
   type: '',
   duration: 0,
   distance: 0,
-  date: dayjs().format('YYYY-MM-DD'), // Set default date to today
+  date: dayjs().format('YYYY-MM-DD'),
   location: ''
 })
 
-// Loading state
 const isSubmitting = ref(false)
 
-// Activity data
 const recentActivity = ref<Activity[]>([])
 
-// Fetch existing activities
 getActivity().then((response) => {
   recentActivity.value = response.items
 })
 
-// Add a new post
 async function addPost() {
   if (!currentUser) {
     alert('You must be logged in to create a post.')
@@ -160,13 +153,12 @@ async function addPost() {
     const response = await create(post)
     console.log('Post created successfully:', response)
     
-    // Reset form
     newPost.value = {
       title: '',
       type: '',
       duration: 0,
       distance: 0,
-      date: dayjs().format('YYYY-MM-DD'), // Reset date to today
+      date: dayjs().format('YYYY-MM-DD'),
       location: ''
     }
   } catch (error) {
@@ -175,7 +167,6 @@ async function addPost() {
   }
 }
 
-// Update activity
 async function updateActivity() {
   if (!currentUser) return;
  
@@ -205,7 +196,7 @@ async function updateActivity() {
     }
   } else if (currentUser) {
     const activityData = {
-      id: -1, // Temporary ID for TypeScript
+      id: -1,
       type: newPost.value.type || '',
       location: newPost.value.location || '',
       duration: newPost.value.duration || 0,
@@ -229,7 +220,6 @@ async function updateActivity() {
   }
 }
   
-// Submit handler
 async function submitPost() {
   if (!currentUser) {
     alert('You must be logged in to create a post.')
@@ -265,17 +255,14 @@ async function submitPost() {
   margin-bottom: 1.5rem;
 }
 
-/* Improve input focus state */
 .input:focus {
   box-shadow: 0 0 0 2px rgba(32, 156, 238, 0.25);
 }
 
-/* Smooth transitions */
 .button, .input {
   transition: all 0.2s ease-in-out;
 }
 
-/* Fix icon alignment */
 .icon.is-small {
   display: inline-flex;
   align-items: center;

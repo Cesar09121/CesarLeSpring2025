@@ -1,129 +1,147 @@
 <template>
-  <h1 class="title is-3">Your Activity</h1>
+  <h1 class="title is-3">All Activities</h1>
   <div>
-    <button class="button is-primary" @click="form = true">Add New Activity</button>
-    <div v-if="form" class="modal is-active">
-      <div class="modal-background" @click="form = false"></div>
-      <div class="modal-card">
-        <header class="modal-card-head">
-          <p class="modal-card-title">New Activity</p>
-          <button class="delete" aria-label="close" @click="form = false"></button>
-        </header>
-        <section class="modal-card-body">
-          <PostForm @cancel="form = false" />
-        </section>
-      </div>
+    <div v-if="loading" class="has-text-centered">
+      <progress class="progress is-primary" max="100"></progress>
     </div>
-
-    <div>
-      <ul>
-        <li v-for="(post, index) in posts.items" :key="index">
-          <div class="box">
-            <article class="media">
-              <div class="media-left">
-                <figure class="image is-64x64 is-square">
-                </figure>
-              </div>
-              <div class="media-content">
-                <div class="content">
-                  <p>
-                    <strong>{{ post.username }}</strong>
-                    &nbsp; <small>@{{ post.email }}</small> &nbsp;
-                    <small>{{ post.date }}</small>
-                  </p>
-                  <h4>{{ post.title }}</h4>
-                  <div class="post-details">
-                    <div>
-                      <p>EXERCISE TYPE</p>
-                      <h1>{{ post.type }}</h1>
-                    </div>
-                    <div>
-                      <p>DURATION</p>
-                      <h1>{{ post.duration }} minutes</h1>
-                    </div>
-                    <div v-if="post.date">
-                      <p>DATE</p>
-                      <h1>{{ post.date }}</h1>
-                    </div>
-                    <div v-if="post.location">
-                      <p>LOCATION</p>
-                      <h1>{{ post.location }}</h1>
-                    </div>
-                    <div v-if="post.distance">
-                      <p>DISTANCE</p>
-                      <h1>{{ post.distance }} meters</h1>
-                    </div>
+    
+    <div v-else-if="error" class="notification is-danger">
+      {{ error }}
+    </div>
+    
+    <div v-else-if="!posts.items || posts.items.length === 0" class="notification is-info">
+      No activities found.
+    </div>
+    
+    <ul v-else>
+      <li v-for="(post, index) in posts.items" :key="index">
+        <div class="box">
+          <article class="media">
+            <div class="media-left">
+              <figure class="image is-64x64 is-square">
+                <div class="has-background-primary has-text-white is-flex is-align-items-center is-justify-content-center" style="width: 100%; height: 100%;">
+                  {{ post.username ? post.username.charAt(0).toUpperCase() : 'U' }}
+                </div>
+              </figure>
+            </div>
+            <div class="media-content">
+              <div class="content">
+                <p>
+                  <strong>{{ post.username }}</strong>
+                  &nbsp; <small>@{{ post.email }}</small> &nbsp;
+                  <small>{{ formatDate(post.date) }}</small>
+                  <br />
+                </p>
+                <h4>{{ post.title }}</h4>
+                <div class="post-details">
+                  <div>
+                    <p>EXERCISE</p>
+                    <h1>{{ post.type }}</h1>
                   </div>
-
-                  <nav class="level is-mobile">
-                    <div class="level-left">
-                      <a class="level-item" aria-label="reply">
-                        <span class="icon is-small">
-                          <i class="fas fa-reply" aria-hidden="true"></i>
-                        </span>
-                      </a>
-                      <a class="level-item" aria-label="retweet">
-                        <span class="icon is-small">
-                          <i class="fas fa-retweet" aria-hidden="true"></i>
-                        </span>
-                      </a>
-                      <a class="level-item" aria-label="like">
-                        <span class="icon is-small">
-                          <i class="fas fa-heart" aria-hidden="true"></i>
-                        </span>
-                      </a>
-                      <a class="level-item" aria-label="delete" @click="deletePost(post.postId)">
-                        <span class="icon is-small">
-                          <i class="fas fa-trash" aria-hidden="true"></i>
-                        </span>
-                      </a>
-                    </div>
-                  </nav>
+                  <div>
+                    <p>DISTANCE</p>
+                    <h1>{{ post.distance }} km</h1>
+                  </div>
+                  <div>
+                    <p>DURATION</p>
+                    <h1>{{ post.duration }} minutes</h1>
+                  </div>
+                  <div v-if="post.location">
+                    <p>LOCATION</p>
+                    <h1>{{ post.location }}</h1>
+                  </div>
                 </div>
               </div>
-            </article>
-          </div>
-        </li>
-      </ul>
-    </div>
+              <nav class="level is-mobile">
+                <div class="level-left">
+                  <a class="level-item" aria-label="reply">
+                    <span class="icon is-small">
+                      <i class="fas fa-reply" aria-hidden="true"></i>
+                    </span>
+                  </a>
+                  <a class="level-item" aria-label="retweet">
+                    <span class="icon is-small">
+                      <i class="fas fa-retweet" aria-hidden="true"></i>
+                    </span>
+                  </a>
+                  <a class="level-item" aria-label="like">
+                    <span class="icon is-small">
+                      <i class="fas fa-heart" aria-hidden="true"></i>
+                    </span>
+                  </a>
+                </div>
+              </nav>
+            </div>
+          </article>
+        </div>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { type DataListEnvelope } from '@/models/dataEnvelopes'
-import { get, remove, type Post } from '@/models/posts'
-import { isLoggedIn, useSession } from '@/models/session'
-import PostForm from '@/components/StaticsticPost.vue'
+import type { DataListEnvelope } from '@/models/dataEnvelopes'
+import { getAll, type Post } from '@/models/posts'
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
+import realTime from 'dayjs/plugin/relativeTime'
+import { ref } from 'vue'
 
-dayjs.extend(relativeTime)
+dayjs.extend(realTime)
 
-const form = ref(false)
 const posts = ref({} as DataListEnvelope<Post>)
-const session = useSession()
+const loading = ref(true)
+const error = ref('')
 
-if (session.value.user) {
-  get(session.value.user.userId).then((response) => {
+getAll()
+  .then((response) => {
     posts.value = response
+    loading.value = false
   })
-}
+  .catch((err) => {
+    console.error('Error fetching posts:', err)
+    error.value = 'Failed to load activities. Please try again.'
+    loading.value = false
+  })
 
-async function deletePost(postId: number) {
-  const response = await remove(postId)
-  posts.value?.items.splice(
-    posts.value.items.findIndex((post) => post.postId === postId),
-    1,
-  )
+function formatDate(dateString: string | undefined) {
+  if (!dateString) return 'Unknown date'
+  const date = dayjs(dateString)
+  return date.isValid() ? date.fromNow() : dateString
 }
 </script>
 
 <style scoped>
-.mt-4 {
-  margin-top: 1.5rem;
+.has-text-grey-light {
+  text-decoration: line-through;
 }
-.mb-4 {
-  margin-bottom: 1.5rem;
+.box {
+  margin-bottom: 1rem;
+}
+.button.is-center {
+  display: block;
+  width: 200px;
+}
+.post-details h1 {
+  margin-top: 0;
+}
+.post-details p {
+  margin-bottom: 3px;
+}
+.post-details {
+  text-align: center;
+}
+
+.post-details div {
+  margin-right: 20px;
+}
+
+.post-details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.image.is-64x64.is-square {
+  overflow: hidden;
 }
 </style>
