@@ -117,7 +117,7 @@ Content-Type: application/json
       "userId": 1,
       "username": "cle20",
       "type": "Running",
-      "content": "Beautiful day!",
+      "title": "Beautiful dayyyyyyyyy!",
       "duration": 300,
       "distance": 3.1,
       "location": "New Paltz Trail"

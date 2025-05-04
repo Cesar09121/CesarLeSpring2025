@@ -1,57 +1,18 @@
-<script setup lang="ts">
-import type { DataListEnvelope } from '@/models/dataEnvelopes'
-import { getAll, type Post } from '@/models/posts'
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import { ref } from 'vue'
-
-dayjs.extend(relativeTime)
-
-const posts = ref<DataListEnvelope<Post>>({ 
-  items: [], 
-  total: 0,
-  skip: 0,
-  limit: 0
-})
-const loading = ref(true)
-const error = ref('')
-
-console.log('FriendActivityPage component initializing')
-
-getAll()
-  .then((response) => {
-    console.log('API response:', response)
-    posts.value = response
-    console.log('Posts loaded:', posts.value.items?.length || 0)
-    loading.value = false
-  })
-  .catch((err) => {
-    console.error('Error fetching posts:', err)
-    error.value = 'Failed to load activities: ' + (err.message || 'Unknown error')
-    loading.value = false
-  })
-
-function formatDate(dateString: string | undefined) {
-  if (!dateString) return 'Unknown date'
-  const date = dayjs(dateString)
-  return date.isValid() ? date.fromNow() : dateString
-}
-</script>
-
 <template>
+  <h1 class="title is-3">All Activities</h1>
   <div>
-    <h1 class="title is-3">All Activities</h1>
-    <div v-if="loading" class="has-text-centered my-4">
-      <p>Loading activities...</p>
+    <div v-if="loading" class="has-text-centered">
       <progress class="progress is-primary" max="100"></progress>
     </div>
+    
     <div v-else-if="error" class="notification is-danger">
-      <p><strong>Error:</strong> {{ error }}</p>
-      <p class="is-size-7">Check browser console for more details.</p>
+      {{ error }}
     </div>
+    
     <div v-else-if="!posts.items || posts.items.length === 0" class="notification is-info">
-      <p>No activities found.</p>
+      No activities found.
     </div>
+    
     <ul v-else>
       <li v-for="(post, index) in posts.items" :key="index">
         <div class="box">
@@ -71,19 +32,19 @@ function formatDate(dateString: string | undefined) {
                   <small>{{ formatDate(post.date) }}</small>
                   <br />
                 </p>
-                <h4 v-if="post.title">{{ post.title }}</h4>
+                <h4>{{ post.title }}</h4>
                 <div class="post-details">
                   <div>
                     <p>EXERCISE</p>
-                    <h1>{{ post.type || 'N/A' }}</h1>
+                    <h1>{{ post.type }}</h1>
                   </div>
                   <div>
                     <p>DISTANCE</p>
-                    <h1>{{ post.distance || 0 }} km</h1>
+                    <h1>{{ post.distance }} km</h1>
                   </div>
                   <div>
                     <p>DURATION</p>
-                    <h1>{{ post.duration || 0 }} minutes</h1>
+                    <h1>{{ post.duration }} minutes</h1>
                   </div>
                   <div v-if="post.location">
                     <p>LOCATION</p>
@@ -118,6 +79,37 @@ function formatDate(dateString: string | undefined) {
   </div>
 </template>
 
+<script setup lang="ts">
+import type { DataListEnvelope } from '@/models/dataEnvelopes'
+import { getAll, type Post } from '@/models/posts'
+import dayjs from 'dayjs'
+import realTime from 'dayjs/plugin/relativeTime'
+import { ref } from 'vue'
+
+dayjs.extend(realTime)
+
+const posts = ref({} as DataListEnvelope<Post>)
+const loading = ref(true)
+const error = ref('')
+
+getAll()
+  .then((response) => {
+    posts.value = response
+    loading.value = false
+  })
+  .catch((err) => {
+    console.error('Error fetching posts:', err)
+    error.value = 'Failed to load activities. Please try again.'
+    loading.value = false
+  })
+
+function formatDate(dateString: string | undefined) {
+  if (!dateString) return 'Unknown date'
+  const date = dayjs(dateString)
+  return date.isValid() ? date.fromNow() : dateString
+}
+</script>
+
 <style scoped>
 .has-text-grey-light {
   text-decoration: line-through;
@@ -151,30 +143,5 @@ function formatDate(dateString: string | undefined) {
 
 .image.is-64x64.is-square {
   overflow: hidden;
-}
-
-.is-flex {
-  display: flex;
-}
-
-.is-align-items-center {
-  align-items: center;
-}
-
-.is-justify-content-center {
-  justify-content: center;
-}
-
-.has-background-primary {
-  background-color: #209cee;
-}
-
-.has-text-white {
-  color: white;
-}
-
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
 }
 </style>
