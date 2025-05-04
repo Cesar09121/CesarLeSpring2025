@@ -47,10 +47,6 @@ const routes: Array<RouteRecordRaw> = [
     name : 'friendActivity',
     component: FriendActivityPage,
     meta:{requiresAuth: true}
-  },
-  {
-    path: '/:catchAll(.*)',
-    redirect: '/login'
   }
 ]
 
