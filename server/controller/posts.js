@@ -13,16 +13,20 @@ router
       })
       .catch(next);
   })
-  .get("/:id", (req, res, next) => {
-    const { id } = req.params;
-
-    model
-      .get(id)
-      .then((data) => {
-        res.send(data);
-      })
-      .catch(next);
-  })
+  router
+    .get('/:id', (req, res, next) => {
+        const { id } = req.params
+        
+        if (!id || id === 'undefined') {
+            return res.status(400).json({ 
+                message: "User ID is required" 
+            });
+        }
+        
+        model.get(id).then((data) => {
+            res.send(data)
+        }).catch(next)
+    })
   .post("/", (req, res, next) => {
     const newValues = req.body;
 
@@ -33,11 +37,11 @@ router
       })
       .catch(next);
   })
-  .delete("/:id", (req, res, next) => {
+  .delete("/:posts_id", (req, res, next) => {
     const { post_id } = req.params;
 
     model
-      .remove(post_id)
+      .remove(posts_id)
       .then((data) => {
         res.send(data);
       })

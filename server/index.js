@@ -5,6 +5,7 @@ const express = require('express')
 const userController = require('./controller/user')
 const activityController = require('./controller/activity')
 const authController = require('./controller/auth')
+const postsController = require('./controller/posts')
 
 
 
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/auth', authController)
 app.use('/api/v1/users', userController)
 app.use('/api/v1/activity', activityController)
+app.use('/api/v1/posts', postsController)
 
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {

@@ -84,15 +84,13 @@ Content-Type: application/json
   "date": "2025-05-01T08:30:00Z",
   "location": "Central Park, New York"
 }
-### Get Activity by ID
-GET http://localhost:3000/api/v1/activity/2
 
 ### Update Activity
-PATCH http://localhost:3000/api/v1/activity/18
+PATCH http://localhost:3000/api/v1/activity/7
 Content-Type: application/json
 
 {
-    "user_id": 33,
+    "userId": 1,
     "type": "Swim",
     "distance": 3.0,
     "duration": 45,
@@ -104,12 +102,44 @@ Content-Type: application/json
 }
 
 ### Delete Activity
-DELETE http://localhost:3000/api/v1/activity/19
+DELETE http://localhost:3000/api/v1/activity/6
 
 
 ########################
 # Post Controller
 ########################
+### Create Posts
+POST http://localhost:3000/api/v1/posts
+Content-Type: application/json
+
+{
+      "userId": 1,
+      "username": "cle20",
+      "type": "Running",
+      "content": "Beautiful day!",
+      "duration": 300,
+      "distance": 3.1,
+      "location": "New Paltz Trail"
+}
+
+### Get All Posts
+GET http://localhost:3000/api/v1/posts
 ### Get Posts
 GET http://localhost:3000/api/v1/posts/1
 
+### Update Posts
+PATCH http://localhost:3000/api/v1/posts/1
+Content-Type: application/json
+ {
+      "userId": 1,
+      "username": "cle20",
+      "type": "Running",
+      "content": "Afernoon run at the park. Beautiful day!",
+      "duration": 30,
+      "distance": 3.5,
+      "location": "New Paltz Trail"
+
+    }
+
+### Delete Posts
+DELETE http://localhost:3000/api/v1/posts/6

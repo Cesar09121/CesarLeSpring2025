@@ -1,5 +1,4 @@
 const model = require('../models/activity')
-const data = require('../data/activity.json')
 const express = require('express')
 const router = express.Router()
 
@@ -11,8 +10,15 @@ router
             res.send(data)
         }).catch(next)
     })
-    .get('/:id', (req, res, next) => {
+    .get('/stats/:userId', (req, res, next) => {
         const { id } = req.params
+        
+        // Add validation for id
+        if (!id || id === 'undefined') {
+            return res.status(400).json({ 
+                message: "Valid user ID is required" 
+            });
+        }
         
         model.get(id).then((data) => {
             res.send(data)
@@ -49,7 +55,7 @@ router
     })
     .post('/seed', async (req, res) => {
         try {
-            const result = await model.seed(); // Use model.seed instead of seed
+            const result = await model.seed();
             res.status(200).json(result);
         } catch (error) {
             console.error('Error seeding data:', error);

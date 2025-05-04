@@ -36,12 +36,31 @@ import realTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(realTime)
 
 const session = useSession()
+const activity = ref({} as Activity)
+const error = ref('')
 
-const activity = ref({}as Activity)
-if(session.value.user){
+// Add debugging
+console.log('Current session:', session.value)
+console.log('Is logged in?', isLoggedIn())
+console.log('User ID:', session.value.user?.userId)
+
+if(isLoggedIn() && session.value.user?.userId) {
+  console.log('Fetching activity for user ID:', session.value.user.userId)
+  
   get(session.value.user.userId).then((response) => {
-    activity.value = response.items[0]
+    console.log('Activity API response:', response)
+    if(response && response.items && response.items.length > 0) {
+      activity.value = response.items[0]
+      console.log('Activity set:', activity.value)
+    } else {
+      console.log('No activity data found in response')
+    }
+  }).catch((err) => {
+    console.error("Error fetching activity:", err)
+    error.value = "Failed to load activity data. Please try again later."
   })
+} else {
+  console.log("User not logged in or user ID is undefined")
 }
 
 

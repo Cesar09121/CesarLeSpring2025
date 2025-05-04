@@ -1,248 +1,163 @@
-const { connect } = require('./supabase')
-const { CustomError, statusCodes } = require('./errors')
-const data = require('../data/activity.json')
+const { connect } = require("./supabase");
+const data = require("../data/activity.json");
 
-const TABLE_NAME = 'activities'
-isAdmin = true
+const TABLE_NAME = "activities";
 
+const BaseQuery = () => connect().from(TABLE_NAME).select("*");
 
-
-const BaseQuery = () => connect()
-  .from(TABLE_NAME)
-  .select('*', { count: 'exact' })
-
-const isAdmin = true 
-
-async function getAll(limit = 30, offset = 0, sort = 'created_at', order = 'desc') {
-  const list = await BaseQuery()
-    .order(sort, { ascending: order === 'asc' })
-    .range(offset, offset + limit - 1)
-
-  if (list.error) {
-    throw list.error
-  }
-
-  return {
-    items: list.data,
-    total: list.count
+async function getAll(limit = 30, offset = 0, sort = "date", order = "desc") {
+  try {
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .select("*", { count: 'exact' })
+      .order(sort, { ascending: order === 'asc' })
+      .range(offset, offset + limit - 1);
+    
+    if (error) throw error;
+    
+    return {
+      items: data || [],
+      total: data.length,
+    };
+  } catch (error) {
+    console.error("Error in getAll activities:", error);
+    throw error;
   }
 }
 
-async function get(id) {
-  const { data: item, error } = await BaseQuery()
-    .eq('id', id)
-    .single()
-
-  if (error) {
-    throw error
+async function get(userId) {
+  try {
+    console.log("Getting activities for userId:", userId);
+    
+    if (!userId) {
+      console.warn("Missing userId in get request");
+      return { items: [], total: 0 };
+    }
+    
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .select("*")
+      .eq("userId", userId);
+    
+    if (error) {
+      console.error("Error in activity.get:", error);
+      throw error;
+    }
+    
+    console.log("Activity data retrieved:", data);
+    return {
+      items: data || [],
+      total: data?.length || 0,
+    };
+  } catch (error) {
+    console.error(`Error getting activities for user ${userId}:`, error);
+    throw error;
   }
-
-  if (!item) {
-    throw new CustomError('Activity not found', statusCodes.NOT_FOUND)
-  }
-
-  return item
 }
 
 async function create(activity) {
-  if (!isAdmin) {
-    throw new CustomError('You are not authorized to create a new activity', statusCodes.UNAUTHORIZED)
+  try {
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .insert(activity)
+      .select();
+    
+    if (error) throw error;
+    
+    return data[0];
+  } catch (error) {
+    console.error("Error creating activity:", error);
+    throw error;
   }
-
-  const { data: newActivity, error } = await connect()
-    .from(TABLE_NAME)
-    .insert(activity)
-    .select('*')
-    .single()
-
-  if (error) {
-    throw error
-  }
-
-  return newActivity
 }
 
-async function update(id, activityData) {
+async function update(id, activity) {
   try {
-      console.log('Updating activity in database:', { id, activityData });
-
-      const { data, error } = await connect()
-          .from(TABLE_NAME)
-          .update(activityData)
-          .eq('id', id)
-          .select('*')
-          .single();
-
-      if (error) {
-          console.error('Database error:', error.message);
-          throw error;
-      }
-
-      return data;
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .update(activity)
+      .eq("id", id)
+      .select();
+    
+    if (error) throw error;
+    
+    return data[0];
   } catch (error) {
-      console.error('Error updating activity:', error.message);
-      throw error;
+    console.error(`Error updating activity ${id}:`, error);
+    throw error;
   }
 }
 
 async function remove(id) {
-  if (!isAdmin) {
-    throw new CustomError('You are not authorized to delete this activity', statusCodes.UNAUTHORIZED)
+  try {
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .delete()
+      .eq("id", id)
+      .select();
+    
+    if (error) throw error;
+    
+    return data[0];
+  } catch (error) {
+    console.error(`Error removing activity ${id}:`, error);
+    throw error;
   }
+}
 
-  const { data: deletedActivity, error } = await connect()
-    .from(TABLE_NAME)
-    .delete()
-    .eq('id', id)
-
-  if (error) {
-    throw error
+async function getStats(userId) {
+  try {
+    if (!userId) {
+      throw new Error("User ID is required for stats");
+    }
+    
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .select("*")
+      .eq("userId", userId);
+    
+    if (error) throw error;
+  
+    return {
+      stats: {
+        totalActivities: data.length,
+        totalDistance: data.reduce((sum, act) => sum + (Number(act.distance) || 0), 0),
+        totalDuration: data.reduce((sum, act) => sum + (Number(act.duration) || 0), 0),
+      }
+    };
+  } catch (error) {
+    console.error(`Error getting stats for user ${userId}:`, error);
+    throw error;
   }
-
-  return deletedActivity
 }
 
 async function seed() {
-  console.log('Starting activity seed process...');
-  
-  if (!isAdmin) {
-    throw new CustomError('You are not authorized to seed data', statusCodes.UNAUTHORIZED)
-  }
-
   try {
-  
-    const { data: existingActivities, error: checkError } = await connect()
-      .from(TABLE_NAME)
-      .select('id');
-
-    if (checkError) {
-      console.error('Error checking existing activities:', checkError);
-      throw checkError;
+    if (!data || !data.activities || !Array.isArray(data.activities)) {
+      throw new Error("Invalid activity data format for seeding");
     }
-
-    if (existingActivities?.length > 0) {
-      console.log('Activities already exist in database');
-      return { message: 'Activities already exist', data: existingActivities };
-    }
+    
     const results = [];
-    for (const activity of data.activity) {
-      const mappedActivity = mapToDB(activity);
+    for (const activity of data.activities) {
       const { data: newActivity, error } = await connect()
         .from(TABLE_NAME)
-        .insert(mappedActivity)
-        .select('*')
-        .single();
-
-      if (error) {
-        console.error('Error inserting activity:', error.message);
-        throw error;
-      }
-
-      results.push(newActivity);
-      console.log('Seeded activity:', newActivity.id);
+        .insert(activity)
+        .select();
+      
+      if (error) throw error;
+      
+      results.push(newActivity[0]);
     }
-
-    console.log(`Successfully seeded ${results.length} activities`);
-    return { message: 'Seeded successfully', data: results };
-
-  }catch (error) {
-    console.error('Failed to seed activities:', error);
-    throw new CustomError(
-      'Failed to seed activity data: ' + error.message,
-      statusCodes.INTERNAL_SERVER_ERROR
-    );
-  }
-}
-
-
-
-
-  async function createActivity(req, res) {
-  const { user_id, type, distance, distance_unit, duration, date, location_lat, location_lng } = req.body;
-
-  try {
-    const { data: user, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', user_id)
-      .single();
-
-    if (userError) {
-      return res.status(400).json({ error: userError.message });
-    }
-
-    const { data: activity, error: activityError } = await supabase
-      .from('activities')
-      .insert({
-        user_id,
-        type,
-        distance,
-        distance_unit,
-        duration,
-        date,
-        location_lat,
-        location_lng
-      })
-      .select('*')
-      .single();
-
-    if (activityError) {
-      return res.status(400).json({ error: activityError.message });
-    }
-
-    return res.status(201).json({ message: 'Activity created successfully', activity });
+    
+    return { 
+      message: "Activities seeded successfully",
+      count: results.length
+    };
   } catch (error) {
-    console.error('Error creating activity:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("Error seeding activities:", error);
+    throw error;
   }
 }
-
-async function updateActivity(req, res) {
-  const activityId = req.params.id; 
-  const activityData = req.body; 
-
-  try {
-
-    const { data: existingActivity, error: fetchError } = await supabase
-      .from('activities')
-      .select('*')
-      .eq('id', activityId)
-      .single();
-
-    if (fetchError || !existingActivity) {
-      return res.status(404).json({ message: 'Activity not found' });
-    }
-
-    const { data: updatedActivity, error: updateError } = await supabase
-      .from('activities')
-      .update(activityData)
-      .eq('id', activityId)
-      .select('*')
-      .single();
-
-    if (updateError) {
-      return res.status(400).json({ error: updateError.message });
-    }
-
-    return res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
-  } catch (error) {
-    console.error('Error updating activity:', error);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-}
-function mapToDB(activity) {
-  return {
-    user_id: activity.user_id,
-    type: activity.type,
-    distance: activity.distance,
-    distance_unit: activity.distance_unit,
-    duration: activity.duration,
-    date: activity.date,
-   location: activity.location
-  }
-}
-
-  
 
 module.exports = {
   getAll,
@@ -250,9 +165,6 @@ module.exports = {
   create,
   update,
   remove,
-  seed,
   getStats,
-  createActivity,
-  
-
-}
+  seed
+};
