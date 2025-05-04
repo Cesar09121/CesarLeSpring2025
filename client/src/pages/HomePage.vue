@@ -81,7 +81,7 @@
 
 <script setup lang="ts">
 import type { DataListEnvelope } from '@/models/dataEnvelopes'
-import { getAll, get, type Post } from '@/models/posts'
+import { getAll, type Post } from '@/models/posts'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import { ref, computed, onMounted } from 'vue'
