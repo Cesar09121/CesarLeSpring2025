@@ -37,7 +37,7 @@ app.use('/api/v1/auth', authController)
 app.use('/api/v1/users', userController)
 app.use('/api/v1/activity', activityController)
 app.use('/api/v1/posts', postsController)
-
+app.use("/", express.static("dist"));
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
         res.sendFile(path.join(__dirname, '../client/index.html'))
