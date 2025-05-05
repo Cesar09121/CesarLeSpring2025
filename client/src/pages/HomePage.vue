@@ -1,5 +1,5 @@
 <template>
-  <h1 class="title is-3">My Activities</h1>
+  <h1 class="title is-3">All Posts</h1>
   <div>
     <div v-if="loading" class="has-text-centered">
       <progress class="progress is-primary" max="100"></progress>
@@ -9,12 +9,12 @@
       {{ error }}
     </div>
     
-    <div v-else-if="!userActivities.length" class="notification is-info">
-      No activities found for your account.
+    <div v-else-if="!posts.items || posts.items.length === 0" class="notification is-info">
+      No activities found.
     </div>
     
     <ul v-else>
-      <li v-for="(post, index) in userActivities" :key="index">
+      <li v-for="(post, index) in posts.items" :key="index">
         <div class="box">
           <article class="media">
             <div class="media-left">
@@ -84,39 +84,24 @@ import type { DataListEnvelope } from '@/models/dataEnvelopes'
 import { getAll, type Post } from '@/models/posts'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
-import { ref, computed, onMounted } from 'vue'
-import { useSession, isLoggedIn } from '@/models/session'
+import { ref } from 'vue'
 
 dayjs.extend(realTime)
 
 const posts = ref({} as DataListEnvelope<Post>)
 const loading = ref(true)
 const error = ref('')
-const session = useSession()
 
-const currentUser = computed(() => session.value.user)
-
-
-const userActivities = computed(() => {
-  if (!posts.value.items || !isLoggedIn()) return []
-  
-  return posts.value.items.filter(post => 
-    post.email === currentUser.value?.email
-  )
-})
-
-onMounted(async () => {
-  try {
- 
-    const response = await getAll()
+getAll()
+  .then((response) => {
     posts.value = response
- 
-  } catch (err) {
-    console.error('Error fetching posts:', err)
-    error.value = 'Failed to load your activities. Please try again.'
     loading.value = false
-  }
-})
+  })
+  .catch((err) => {
+    console.error('Error fetching posts:', err)
+    error.value = 'Failed to load activities. Please try again.'
+    loading.value = false
+  })
 
 function formatDate(dateString: string | undefined) {
   if (!dateString) return 'Unknown date'

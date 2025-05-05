@@ -37,7 +37,7 @@ router
       })
       .catch(next);
   })
-  .delete("/:posts_id", (req, res, next) => {
+  .delete("/:postsId", (req, res, next) => {
     const { post_id } = req.params;
 
     model
@@ -54,6 +54,17 @@ router
       .seed(data)
       .then((data) => {
         res.status(201).send(data);
+      })
+      .catch(next);
+  })
+  .patch("/:id", (req, res, next) => {
+    const { id } = req.params;
+    const changes = req.body;
+    
+    model
+      .update(id, changes)
+      .then((data) => {
+        res.send(data);
       })
       .catch(next);
   });

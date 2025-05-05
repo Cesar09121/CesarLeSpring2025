@@ -12,14 +12,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="user in user.items" :key="user.userId">
-          <td>{{ user.username }}</td>
-          <td>{{ user.name}}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.admin }}</td>
+        <tr v-for="userItem in users.items" :key="userItem.userId">
+          <td>{{ userItem.username }}</td>
+          <td>{{ userItem.name }}</td>
+          <td>{{ userItem.email }}</td>
+          <td>{{ userItem.role === 'admin' ? 'admin' : 'user' }}</td>
           <td>
-            <button class="button is-small is-info" @click="editUser(user)">Edit</button>
-            <button class="button is-small is-danger" @click="deleteUser(user.userId)">
+            <button class="button is-small is-info" @click="editUser(userItem)">Edit</button>
+            <button class="button is-small is-danger" @click="deleteUser(userItem.userId)">
               Delete
             </button>
           </td>
@@ -49,10 +49,6 @@
           </div>
         </div>
         <div class="field">
-          <label class="checkbox">
-            <input type="checkbox" v-model="editingUser.admin" />
-            Admin
-          </label>
         </div>
         <div class="field">
           <div class="control">
@@ -66,30 +62,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { getAll, type User, update, remove } from '@/models/user'
-import { DataListEnvelope } from '@/models/dataEnvelopes'
+import type { DataListEnvelope } from '@/models/dataEnvelopes'
 
-
-const user= ref({} as DataListEnvelope<User>)
+const users = ref({} as DataListEnvelope<User>)
 const editingUser = ref({} as User)
 const showForm = ref(false)
 
-getAll().then((response) => {
-  user.value = response
+onMounted(async () => {
+  fetchUsers()
 })
 
+async function fetchUsers() {
+  try {
+    users.value = await getAll()
+  } catch (err) {
+    console.error('Error loading users:', err)
+  }
+}
 
 function editUser(user: User) {
-  editingUser.value = user
+  editingUser.value = JSON.parse(JSON.stringify(user))
   showForm.value = true
 }
 
-async function updateUser(){
+async function updateUser() {
   console.log(editingUser)
   if (editingUser) {
-  await update(editingUser.value)
-  user.value = await getAll()
+    await update(editingUser.value)
+    await fetchUsers()
   }
 }
 
@@ -98,12 +100,14 @@ async function submitUpdate() {
   showForm.value = false
 }
 
-const deleteUser = async (userId: number) => {
-  await remove(userId)
-  user.value = await getAll()
+async function deleteUser(userId: number) {
+  try {
+    await remove(userId)
+    await fetchUsers()
+  } catch (err) {
+    console.error('Error deleting user:', err)
+  }
 }
-
-
 </script>
 
 <style scoped>

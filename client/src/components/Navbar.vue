@@ -37,10 +37,6 @@
         <div class="navbar-start">
           <RouterLink to="/dashboard" class="navbar-item">
             <span class="icon is-small mr-1"><i class="fas fa-dumbbell"></i></span> 
-            <span>My Activity</span>
-          </RouterLink>
-          <RouterLink to="/friends" class="navbar-item">
-            <span class="icon is-small mr-1"><i class="fas fa-users"></i></span>
             <span>Friends Activity</span>
           </RouterLink>
           <RouterLink to="/statistics" class="navbar-item">

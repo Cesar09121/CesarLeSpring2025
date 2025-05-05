@@ -21,7 +21,7 @@ export function useSession() {
 return session
 }
 
-export const isAdmin = () => session.value.user?.admin ?? false
+export const isAdmin = () => session.value.user?.role === 'admin'
 export const isLoggedIn = () => session.value.user !== null
 
 

@@ -29,22 +29,17 @@ async function get(userId) {
   try {
     console.log("Getting activities for userId:", userId);
     
-    if (!userId) {
-      console.warn("Missing userId in get request");
-      return { items: [], total: 0 };
-    }
-    
     const { data, error } = await connect()
       .from(TABLE_NAME)
       .select("*")
-      .eq("userId", userId);
+      .eq("userId", userId);  // This should filter by userId
     
     if (error) {
       console.error("Error in activity.get:", error);
       throw error;
     }
     
-    console.log("Activity data retrieved:", data);
+    console.log(`Found ${data?.length || 0} activities for user ${userId}`);
     return {
       items: data || [],
       total: data?.length || 0,

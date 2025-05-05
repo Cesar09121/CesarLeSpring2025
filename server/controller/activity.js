@@ -11,16 +11,16 @@ router
         }).catch(next)
     })
     .get('/stats/:userId', (req, res, next) => {
-        const { id } = req.params
+        const { userId } = req.params
         
-        // Add validation for id
-        if (!id || id === 'undefined') {
+   
+        if (!userId || userId === 'undefined') {
             return res.status(400).json({ 
                 message: "Valid user ID is required" 
             });
         }
         
-        model.get(id).then((data) => {
+        model.get(userId).then((data) => {
             res.send(data)
         }).catch(next)
     })

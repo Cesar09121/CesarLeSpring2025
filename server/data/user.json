@@ -5,7 +5,7 @@
                 "username": "cle20",
                 "name": "Cesar Le",
                 "password": "cesarle",
-                "role": "admin"
+                "admin": "admin"
               },
               {
                 "id": 2,

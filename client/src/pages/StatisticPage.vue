@@ -1,50 +1,41 @@
 <template>
   <div class="stats">
-
-    <h1 class="title is-3 mt-5"><b>Recent Posts</b></h1>
+    <h1 class="title is-3 mt-5"><b>All Activities</b></h1>
     
-    <div v-if="loadingPosts" class="has-text-centered my-4">
+    <div v-if="loadingActivities" class="has-text-centered my-4">
       <progress class="progress is-primary" max="100"></progress>
     </div>
     
-    <div v-else-if="postsError" class="notification is-danger">
-      {{ postsError }}
+    <div v-else-if="activitiesError" class="notification is-danger">
+      {{ activitiesError }}
     </div>
     
-    <div v-else-if="!allPosts.items || allPosts.items.length === 0" class="notification is-info">
-      No activities found from other users.
+    <div v-else-if="!allActivities.items || allActivities.items.length === 0" class="notification is-info">
+      No activities found.
     </div>
     
     <div v-else>
-      <div class="box activity-box" v-for="(post, index) in allPosts.items" :key="index">
+      <div class="box activity-box" v-for="(activity, index) in allActivities.items" :key="index">
         <div class="is-flex is-justify-content-space-between">
           <div>
-            <p class="has-text-weight-bold">{{ post.username }}</p>
-            <p class="is-size-7">{{ post.email }}</p>
+            <p class="has-text-weight-bold">Member #{{ activity.id  }}</p>
+            <p class="is-size-7">{{ activity.type }}</p>
           </div>
-          <p class="is-size-7">{{ formatDate(post.date) }}</p>
+          <p class="is-size-7">{{ formatDate(activity.date?.toString()) }}</p>
         </div>
         
         <div class="activity-details mt-3">
           <div class="activity-item">
-            <p></p>
-            <h1>{{ post.title }}</h1>
-          </div>
-          <div class="activity-item">
             <p>EXERCISE TYPE</p>
-            <h1>{{ post.type }}</h1>
+            <h1>{{ activity.type }}</h1>
           </div>
           <div class="activity-item">
             <p>DURATION</p>
-            <h1>{{ post.duration }} minutes</h1>
+            <h1>{{ activity.duration }} minutes</h1>
           </div>
           <div class="activity-item">
             <p>DISTANCE</p>
-            <h1>{{ post.distance }} km</h1>
-          </div>
-          <div class="activity-item">
-            <p>LOCATION</p>
-            <h1>{{ post.location }}</h1>
+            <h1>{{ activity.distance }} km</h1>
           </div>
         </div>
       </div>
@@ -54,54 +45,31 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {get, type Activity} from '@/models/activity'
-import {getAll as getAllPosts, type Post} from '@/models/posts'
+import {getAll as getAllActivities, type Activity} from '@/models/activity'
 import {isLoggedIn, useSession} from '@/models/session'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 dayjs.extend(realTime)
 
 const session = useSession()
-const activity = ref({} as Activity)
-const error = ref('')
 
-const allPosts = ref({ items: [] } as unknown as {items: Post[], total: number})
-const loadingPosts = ref(true)
-const postsError = ref('')
+const allActivities = ref({ items: [] } as unknown as {items: Activity[], total: number})
+const loadingActivities = ref(true)
+const activitiesError = ref('')
 
 console.log('Current session:', session.value)
 console.log('Is logged in?', isLoggedIn())
 console.log('User ID:', session.value.user?.userId)
-
-if(isLoggedIn() && session.value.user?.userId) {
-  console.log('Fetching activity for user ID:', session.value.user.userId)
-  
-  get(session.value.user.userId).then((response) => {
-    console.log('Activity API response:', response)
-    if(response && response.items && response.items.length > 0) {
-      activity.value = response.items[0]
-      console.log('Activity set:', activity.value)
-    } else {
-      console.log('No activity data found in response')
-    }
-  }).catch((err) => {
-    console.error("Error fetching activity:", err)
-    error.value = "Failed to load activity data. Please try again later."
-  })
-} else {
-  console.log("User not logged in or user ID is undefined")
-}
-
-getAllPosts()
+getAllActivities()
   .then((response) => {
-    allPosts.value = response
-    console.log('All posts loaded:', allPosts.value)
-    loadingPosts.value = false
+    allActivities.value = response
+    console.log('All activities loaded:', allActivities.value)
+    loadingActivities.value = false
   })
   .catch((err) => {
-    console.error("Error loading all posts:", err)
-    postsError.value = "Failed to load all activities. Please try again."
-    loadingPosts.value = false
+    console.error("Error loading all activities:", err)
+    activitiesError.value = "Failed to load all activities. Please try again."
+    loadingActivities.value = false
   })
 
 function formatDate(dateString: string | undefined) {
@@ -109,6 +77,7 @@ function formatDate(dateString: string | undefined) {
   const date = dayjs(dateString)
   return date.isValid() ? date.format('MMM D, YYYY') : dateString
 }
+
 </script>
 
 <style scoped>

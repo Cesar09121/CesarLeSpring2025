@@ -12,19 +12,19 @@ POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "username": "cesar11",
+    "username": "cesar",
     "password": "cesarle",
-    "email": "cleeee1@gmail.com",  
+    "email": "c11@gmail.com",  
     "name": "Tutte",
-    "role": "admin"
+    "role": "user"
 }
 
 ### Update User
-PATCH http://localhost:3000/api/v1/users/1
+PATCH http://localhost:3000/api/v1/users/9
 Content-Type: application/json
 
 {
-    "username": "cle20",
+    "username": "cesar",
     "password": "cesar"
 }
 
@@ -45,8 +45,8 @@ POST http://localhost:3000/api/v1/auth/login
 Content-Type: application/json
 
 {
-    "username": "cle",
-    "password": "12345678"
+    "username": "cesar",
+    "password": "cesar"
 }
 
 
@@ -58,7 +58,7 @@ POST http://localhost:3000/api/v1/auth/logout
 ########################
 
 ### Seed Users
-POST http://localhost:3000/api/v1/user/seed
+POST http://localhost:3000/api/v1/users/seed
 
 ########################
 # Activities Controller
@@ -78,7 +78,7 @@ POST http://localhost:3000/api/v1/activity
 Content-Type: application/json
 
 {
-  "userId": 13,
+  "userId": 1,
   "type": "Running",
   "distance": 5.2,
   "duration": 45,
@@ -87,7 +87,7 @@ Content-Type: application/json
 }
 
 ### Update Activity
-PATCH http://localhost:3000/api/v1/activity/7
+PATCH http://localhost:3000/api/v1/activity/2
 Content-Type: application/json
 
 {
@@ -127,20 +127,6 @@ Content-Type: application/json
 GET http://localhost:3000/api/v1/posts
 ### Get Posts
 GET http://localhost:3000/api/v1/posts/1
-
-### Update Posts
-PATCH http://localhost:3000/api/v1/posts/7
-Content-Type: application/json
-
-{
-  "userId": 1,
-  "username": "cle20",
-  "type": "Running",
-  "content": "Afternoon run at the park. Beautiful day!",
-  "duration": 300,
-  "distance": 3.5,
-  "location": "New Paltz Trail"
-}
 
 ### Delete Posts
 DELETE http://localhost:3000/api/v1/posts/6
