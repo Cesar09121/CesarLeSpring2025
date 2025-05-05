@@ -1,4 +1,4 @@
-export const API_ROOT = import.meta.env.VITE_API_ROOT ?? '/api/v1/';
+export const API_ROOT = import.meta.env.VITE_API_ROOT as string?? '/api/v1/';
 
 
 export function rest<T>(
