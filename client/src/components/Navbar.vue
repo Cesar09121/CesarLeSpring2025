@@ -37,11 +37,11 @@
         <div class="navbar-start">
           <RouterLink to="/dashboard" class="navbar-item">
             <span class="icon is-small mr-1"><i class="fas fa-dumbbell"></i></span> 
-            <span>Friends Activity</span>
+            <span>Activity Posts</span>
           </RouterLink>
           <RouterLink to="/statistics" class="navbar-item">
             <span class="icon is-small mr-1"><i class="fas fa-chart-bar"></i></span>
-            <span>Statistics</span>
+            <span>Statistics </span>
           </RouterLink>
           <RouterLink to="/admin" class="navbar-item">
             <span class="icon is-small mr-1"><i class="fas fa-info-circle"></i></span>
