@@ -7,7 +7,9 @@
         "start": "node server/index.js",
         "dev": "nodemon server/index.js -watch server",
         "build:client": "npm run build --prefix client",
-        "build": "pnpm i --prefix client && npm run build --prefix client"
+        "build": "pnpm i --prefix client && npm run build --prefix client",
+        "render-build": "pnpm install && cd client && pnpm run build"
+
     },
     "license": "ISC",
     "dependencies": {
