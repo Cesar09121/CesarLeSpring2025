@@ -94,7 +94,6 @@ async function update(id, user) {
   if (!isAdmin) {
     throw new CustomError('You are not authorized to update this user', statusCodes.UNAUTHORIZED)
   }
-
   const { data: updatedUser, error } = await connect()
     .from(TABLE_NAME)
     .update(user)
@@ -144,8 +143,6 @@ async function seed(){
       console.log('Users already exist in database');
       return existingUsers;
     }
-
-    // Insert new users
     const { data, error } = await connect()
       .from(TABLE_NAME)
       .insert(users)

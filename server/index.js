@@ -7,18 +7,13 @@ const activityController = require('./controller/activity')
 const authController = require('./controller/auth')
 const postsController = require('./controller/posts')
 
-
-
-
-
 const app = express()
 const PORT = process.env.PORT ?? 3000
 
 app.use(express.json())
-app.use(express.static(path.join(__dirname, '../client')))
+// Serve static files from the client's dist directory
+app.use(express.static(path.join(__dirname, '../dist')))
 app.use(cors());
-
-
 
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*')
@@ -40,7 +35,7 @@ app.use('/api/v1/posts', postsController)
 
 app.get('*', (req, res) => {
     if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, '../client/index.html'))
+        res.sendFile(path.join(__dirname, '../dist/index.html'))
     }
 })
 
@@ -48,10 +43,6 @@ app.get('/api/v1/test', (req, res) => {
     console.log('Test endpoint hit')
     res.json({ message: 'Server is working' })
   })
-  
-  
-
-
 
 // Error handling middleware
 app.use((err, req, res, next) => {
