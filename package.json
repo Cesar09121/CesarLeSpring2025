@@ -6,9 +6,9 @@
     "scripts": {
         "start": "node server/index.js",
         "dev": "nodemon server/index.js -watch server",
-        "build:client": "cd client && npm install && npm run build",
-        "build": "npm install && npm run build:client",
-        "render-build": "npm install && npm run build:client"
+        "build:client": "cd client && pnpm install && pnpm run build",
+        "build": "pnpm run build:client",
+        "render-build": "pnpm install && pnpm run build:client"
     },
     "license": "ISC",
     "dependencies": {
