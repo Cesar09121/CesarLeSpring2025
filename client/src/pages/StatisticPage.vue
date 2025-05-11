@@ -47,13 +47,11 @@
 <script setup lang="ts">
 import {ref} from 'vue'
 import {getAll as getAllActivities, type Activity} from '@/models/activity'
-import {isLoggedIn, useSession} from '@/models/session'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import Statistic from '@/components/Statistic.vue'
 dayjs.extend(realTime)
 
-const session = useSession()
 
 const allActivities = ref({ items: [] } as unknown as {items: Activity[], total: number})
 const loadingActivities = ref(true)

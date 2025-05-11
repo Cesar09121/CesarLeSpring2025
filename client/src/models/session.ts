@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import * as myFetch from './myFetch'
-import {login , type User} from './user'
+import {login} from './user'
 
 export interface SessionUser {
   id: number
