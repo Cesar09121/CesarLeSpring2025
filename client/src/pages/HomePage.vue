@@ -1,5 +1,7 @@
 <template>
   <h1 class="title is-3">All Posts</h1>
+  <Post @activity-added="refreshPost" />
+
   <div>
     <div v-if="loading" class="has-text-centered">
       <progress class="progress is-primary" max="100"></progress>
@@ -81,7 +83,7 @@
 
 <script setup lang="ts">
 import type { DataListEnvelope } from '@/models/dataEnvelopes'
-import { getAll, type Post } from '@/models/posts'
+import { getAll as getAllPost, type Post } from '@/models/posts'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import { ref } from 'vue'
@@ -92,7 +94,7 @@ const posts = ref({} as DataListEnvelope<Post>)
 const loading = ref(true)
 const error = ref('')
 
-getAll()
+getAllPost()
   .then((response) => {
     posts.value = response
     loading.value = false
@@ -103,10 +105,39 @@ getAll()
     loading.value = false
   })
 
+const allPost = ref({ items: [] } as unknown as {items: Post[], total: number})
+const loadingPost = ref(true)
+const activitiesError = ref('')
+
+getAllPost()
+  .then((response) => {
+    allPost.value = response
+    console.log('All posts loaded:', allPost.value)
+    loadingPost.value = false
+  })
+  .catch((err) => {
+    console.error("Error loading all posts:", err)
+    activitiesError.value = "Failed to load all posts. Please try again."
+    loadingPost.value = false
+  })
+
 function formatDate(dateString: string | undefined) {
-  if (!dateString) return 'Unknown date'
+  if (!dateString) return 'N/A'
   const date = dayjs(dateString)
-  return date.isValid() ? date.fromNow() : dateString
+  return date.isValid() ? date.format('MMM D, YYYY') : dateString
+}
+function refreshPost() {
+  loadingPost.value = true
+  getAllPost()
+    .then((response) => {
+      allPost.value = response
+      loadingPost.value = false
+    })
+    .catch((err) => {
+      console.error("Error loading all posts:", err)
+      error.value = "Failed to load all activities. Please try again."
+      loadingPost.value = false
+    })
 }
 </script>
 

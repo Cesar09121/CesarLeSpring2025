@@ -29,3 +29,9 @@ export function create(data: Post) {
 export function remove(postId: number) {
   return api<Post>(`posts/${postId}`, undefined, 'DELETE')
 }
+export function deletePost(postId: number) {
+  return api<Post>(`posts/${postId}`, undefined, 'DELETE')
+}
+export function update(postId: number, data: Post) {
+  return api<Post>(`posts/${postId}`, data, 'PUT')
+}

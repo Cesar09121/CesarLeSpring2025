@@ -1,7 +1,8 @@
 <template>
   <div class="stats">
+
+    <Statistic @activity-added="refreshActivities" />
     <h1 class="title is-3 mt-5"><b>All Activities</b></h1>
-    
     <div v-if="loadingActivities" class="has-text-centered my-4">
       <progress class="progress is-primary" max="100"></progress>
     </div>
@@ -18,7 +19,7 @@
       <div class="box activity-box" v-for="(activity, index) in allActivities.items" :key="index">
         <div class="is-flex is-justify-content-space-between">
           <div>
-            <p class="has-text-weight-bold">Member #{{ activity.id  }}</p>
+            <p class="has-text-weight-bold">Member #{{ activity.userId  }}</p>
             <p class="is-size-7">{{ activity.type }}</p>
           </div>
           <p class="is-size-7">{{ formatDate(activity.date?.toString()) }}</p>
@@ -49,6 +50,7 @@ import {getAll as getAllActivities, type Activity} from '@/models/activity'
 import {isLoggedIn, useSession} from '@/models/session'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
+import Statistic from '@/components/Statistic.vue'
 dayjs.extend(realTime)
 
 const session = useSession()
@@ -57,9 +59,6 @@ const allActivities = ref({ items: [] } as unknown as {items: Activity[], total:
 const loadingActivities = ref(true)
 const activitiesError = ref('')
 
-console.log('Current session:', session.value)
-console.log('Is logged in?', isLoggedIn())
-console.log('User ID:', session.value.user?.userId)
 getAllActivities()
   .then((response) => {
     allActivities.value = response
@@ -77,7 +76,19 @@ function formatDate(dateString: string | undefined) {
   const date = dayjs(dateString)
   return date.isValid() ? date.format('MMM D, YYYY') : dateString
 }
-
+function refreshActivities() {
+  loadingActivities.value = true
+  getAllActivities()
+    .then((response) => {
+      allActivities.value = response
+      loadingActivities.value = false
+    })
+    .catch((err) => {
+      console.error("Error loading all activities:", err)
+      activitiesError.value = "Failed to load all activities. Please try again."
+      loadingActivities.value = false
+    })
+}
 </script>
 
 <style scoped>

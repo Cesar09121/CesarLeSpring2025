@@ -2,9 +2,8 @@ import type { DataListEnvelope } from './dataEnvelopes'
 import { api } from './myFetch'
 
 export interface Activity {
-  id: number;
-  userId: number;
-  username?:string;
+  id?: number;
+  userId?: number;
   type: string;
   distance: number;
   duration: number; 

@@ -1,4 +1,3 @@
-<!-- Navbar.vue -->
 <template>
   <nav class="navbar is-info" role="navigation" aria-label="main navigation">
     <div class="container">
@@ -79,18 +78,15 @@ const isActive = ref(false)
   }
 }
 
-/* Logo styling */
 .navbar-brand .navbar-item svg {
   max-height: 40px;
   width: auto;
 }
 
-/* Bulma override to improve spacing */
 .navbar-item, .navbar-link {
   padding: 0.5rem 0.75rem;
 }
 
-/* Fix icon alignment */
 .icon.is-small {
   display: inline-flex;
   align-items: center;

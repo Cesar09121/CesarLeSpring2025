@@ -19,7 +19,7 @@
           <td>{{ userItem.role === 'admin' ? 'admin' : 'user' }}</td>
           <td>
             <button class="button is-small is-info" @click="editUser(userItem)">Edit</button>
-            <button class="button is-small is-danger" @click="deleteUser(userItem.userId)">
+            <button class="button is-small is-danger" @click="deleteUser(userItem.id)">
               Delete
             </button>
           </td>
@@ -75,6 +75,7 @@ onMounted(async () => {
 })
 
 async function fetchUsers() {
+  console.log('Fetching users...')
   try {
     users.value = await getAll()
   } catch (err) {
@@ -102,7 +103,8 @@ async function submitUpdate() {
 
 async function deleteUser(userId: number) {
   try {
-    await remove(userId)
+    const response = await remove(userId)
+    console.log('User deleted:', response)
     await fetchUsers()
   } catch (err) {
     console.error('Error deleting user:', err)

@@ -1,4 +1,4 @@
-import {api} from './session'
+import {api, LoginResponse} from './session'
 import type { DataListEnvelope } from './dataEnvelopes'
 
 
@@ -9,6 +9,7 @@ export interface User {
   password: string;
   email: string;
   role: string;
+  id: number
 }
 
 export function getAll(): Promise<DataListEnvelope<User>> {
@@ -28,7 +29,7 @@ export function remove(userId: number): Promise<void> {
   return api(`users/${userId}`, {}, 'DELETE');
 }
 export function login({username, password } :{username : string, password : string}) {
-  return api<User>('auth/login', {username, password })
+  return api<LoginResponse>('auth/login', {username, password })
 }
 
 

@@ -1,14 +1,13 @@
 <template>
   <div class="box">
-    <h2 class="title is-4 mb-4">Add New Activity</h2>
-    <form @submit.prevent="submitPost">
+    <form @submit.prevent="submitActivity">
       <div class="field">
         <label class="label">Exercise Type</label>
         <div class="control has-icons-left">
           <input 
             class="input" 
             type="text" 
-            v-model="newPost.type" 
+            v-model="newActivity.type" 
             placeholder="Running, Swimming, Cycling, etc." 
             required 
           />
@@ -24,7 +23,7 @@
           <input 
             class="input" 
             type="text" 
-            v-model="newPost.location" 
+            v-model="newActivity.location" 
             placeholder="Gym, Park, Home, etc." 
             required 
           />
@@ -42,7 +41,7 @@
               <input 
                 class="input" 
                 type="number" 
-                v-model="newPost.duration" 
+                v-model="newActivity.duration" 
                 min="1" 
                 required 
               />
@@ -60,7 +59,7 @@
               <input 
                 class="input" 
                 type="date" 
-                v-model="newPost.date" 
+                v-model="newActivity.date" 
               />
               <span class="icon is-small is-left">
                 <i class="fas fa-calendar-alt"></i>
@@ -76,7 +75,7 @@
           <input 
             class="input" 
             type="number" 
-            v-model="newPost.distance" 
+            v-model="newActivity.distance" 
             min="0" 
             step="0.01" 
             placeholder="0.00" 
@@ -107,18 +106,19 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { create, type Post } from '@/models/posts'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import { useSession } from '@/models/session'
-import { getAll as getActivity, update, create as createActivity, type Activity } from '@/models/activity'
+import { getAll as getActivity, update, create as createActivityApi, type Activity } from '@/models/activity'
 
 dayjs.extend(realTime)
 
 const session = useSession()
 const currentUser = session.value.user
+console.log('Current session:', session.value)
+console.log(currentUser)
 
-const newPost = ref<Partial<Post>>({
+const newActivity = ref<Partial<Activity>>({
   type: '',
   duration: 0,
   distance: 0,
@@ -134,53 +134,30 @@ getActivity().then((response) => {
   recentActivity.value = response.items
 })
 
-async function addPost() {
-  if (!currentUser) {
-    alert('You must be logged in to create a post.')
-    return
-  }
-
-  const post = {
-    ...newPost.value,
-    userId: currentUser.userId,
-    username: currentUser.username,
-    createdAt: dayjs().toISOString(),
-    email: currentUser.email,
-    location: newPost.value.location || ''
-  } as Post
-
+async function createActivity(activity: Activity) {
   try {
-    const response = await create(post)
-    console.log('Post created successfully:', response)
-    
-    newPost.value = {
-      title: '',
-      type: '',
-      duration: 0,
-      distance: 0,
-      date: dayjs().format('YYYY-MM-DD'),
-      location: ''
-    }
+    const response = await createActivityApi(activity)
+    console.log('Activity created:', response)
+    return response
   } catch (error) {
-    console.error('Error creating post:', error)
-    alert('Failed to create post. Please try again.')
+    console.error('Error creating activity:', error)
   }
 }
 
 async function updateActivity() {
   if (!currentUser) return;
  
-  const existingActivity = recentActivity.value.find((activity) => activity.userId === currentUser.userId);
+  const existingActivity = recentActivity.value.find((activity) => activity.userId === currentUser.id);
   
   if (existingActivity) {
     const postedActivity: Activity = {
-      id: existingActivity.id, 
-      type: newPost.value.type || '',
-      location: newPost.value.location || '',
-      duration: newPost.value.duration || 0,
-      userId: currentUser.userId,
-      date: newPost.value.date ? dayjs(newPost.value.date).toISOString() : dayjs().toISOString(),
-      distance: newPost.value.distance || 0
+      id: existingActivity.id,
+      type: newActivity.value.type || '',
+      location: newActivity.value.location || '',
+      duration: newActivity.value.duration || 0,
+      userId: currentUser.id,
+      date: newActivity.value.date ? dayjs(newActivity.value.date).toISOString() : dayjs().toISOString(),
+      distance: newActivity.value.distance || 0
     };
     
     console.log('Updating existing workout:', postedActivity);
@@ -197,12 +174,12 @@ async function updateActivity() {
   } else if (currentUser) {
     const activityData = {
       id: -1,
-      type: newPost.value.type || '',
-      location: newPost.value.location || '',
-      duration: newPost.value.duration || 0,
-      userId: currentUser.userId,
-      date: newPost.value.date ? dayjs(newPost.value.date).toISOString() : dayjs().toISOString(),
-      distance: newPost.value.distance || 0
+      type: newActivity.value.type || '',
+      location: newActivity.value.location || '',
+      duration: newActivity.value.duration || 0,
+      userId: currentUser.id,
+      date: newActivity.value.date ? dayjs(newActivity.value.date).toISOString() : dayjs().toISOString(),
+      distance: newActivity.value.distance || 0
     } as Activity;
     
     console.log('Creating new activity:', activityData);
@@ -220,17 +197,25 @@ async function updateActivity() {
   }
 }
   
-async function submitPost() {
+async function submitActivity() {
   if (!currentUser) {
+
     alert('You must be logged in to create a post.')
     return
   }
   
   isSubmitting.value = true
-  
+   const postedActivity: Activity = {
+      type: newActivity.value.type || '',
+      userId: currentUser.id,
+      location: newActivity.value.location || '',
+      duration: newActivity.value.duration || 0,
+      date: newActivity.value.date ? dayjs(newActivity.value.date).toISOString() : dayjs().toISOString(),
+      distance: newActivity.value.distance || 0
+    }
+    console.log('Creating new activity:', currentUser.id)
   try {
-    await updateActivity()
-    await addPost()
+    await createActivity(postedActivity)
   } catch (error) {
     console.error('Error submitting form:', error)
     alert('Something went wrong. Please try again.')

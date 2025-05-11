@@ -32,7 +32,7 @@ async function get(userId) {
     const { data, error } = await connect()
       .from(TABLE_NAME)
       .select("*")
-      .eq("userId", userId);  // This should filter by userId
+      .eq("userId", userId);  
     
     if (error) {
       console.error("Error in activity.get:", error);

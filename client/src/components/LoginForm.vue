@@ -1,6 +1,4 @@
-<!-- LoginForm.vue -->
 <template>
-  <!-- Logged in state -->
   <div class="navbar-item has-dropdown is-hoverable" v-if="isLoggedIn()">
     <a class="navbar-link">
       <span class="icon is-small mr-1">
@@ -14,7 +12,7 @@
         <span class="icon is-small mr-2">
           <i class="fas fa-dumbbell"></i>
         </span>
-        My Activity
+        Activity Posts
       </RouterLink>
       <hr class="navbar-divider">
       <a @click="logout()" class="navbar-item has-text-danger">
@@ -26,7 +24,6 @@
     </div>
   </div>
 
-  <!-- Admin access - only show if logged in and is admin -->
   <div class="navbar-item" v-if="isLoggedIn() && isAdmin()">
     <RouterLink to="/admin" class="button is-light is-small">
       <span class="icon is-small">
@@ -36,7 +33,6 @@
     </RouterLink>
   </div>
   
-  <!-- Logged out state -->
   <template v-if="!isLoggedIn()">
     <div class="navbar-item">
       <div class="buttons">
@@ -90,7 +86,6 @@ const users = ref<User[]>([])
 const session = useSession()
 
 onMounted(() => {
-  // Fetch users for quick login dropdown
   getAll().then((response) => {
     users.value = response.items
   })
@@ -110,24 +105,20 @@ onMounted(() => {
   margin-left: 0.25rem;
 }
 
-/* Ensure dropdown menus don't get cut off */
 .navbar-dropdown {
   min-width: 200px;
 }
 
-/* Make buttons more compact in navbar */
 .button.is-small {
   height: 2.2rem;
 }
 
-/* Fix icon alignment */
 .icon.is-small {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Smooth transitions */
 .button, .navbar-item {
   transition: background-color 0.2s ease;
 }

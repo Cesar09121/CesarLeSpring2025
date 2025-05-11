@@ -37,7 +37,7 @@ router
         const { id } = req.params
         console.log("Deleting user with ID:", id)
         model.remove(id)
-            .then(data => res.send(data))
+            .then(data => res.send(id))
             .catch(next)
     })
     

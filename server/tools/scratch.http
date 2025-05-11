@@ -12,9 +12,9 @@ POST http://localhost:3000/api/v1/users
 Content-Type: application/json
 
 {
-    "username": "cesar",
+    "username": "c",
     "password": "cesarle",
-    "email": "c11@gmail.com",  
+    "email": "c@gmail.com",  
     "name": "Tutte",
     "role": "user"
 }
@@ -79,9 +79,9 @@ Content-Type: application/json
 
 {
   "userId": 1,
-  "type": "Running",
-  "distance": 5.2,
-  "duration": 45,
+  "type": "Swimming",
+  "distance": 5,
+  "duration": 60,
   "date": "2025-05-01T08:30:00Z",
   "location": "Central Park, New York"
 }
@@ -117,7 +117,7 @@ Content-Type: application/json
       "userId": 1,
       "username": "cle20",
       "type": "Running",
-      "title": "Beautiful dayyyyyyyyy!",
+      "title": "Beautiful day in the beach!",
       "duration": 300,
       "distance": 3.1,
       "location": "New Paltz Trail"
