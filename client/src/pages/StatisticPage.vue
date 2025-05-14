@@ -24,7 +24,66 @@
           </div>
           <p class="is-size-7">{{ formatDate(activity.date?.toString()) }}</p>
         </div>
-        
+        <button 
+                class="button is-info is-small mt-2" 
+                @click="editActivity(activity)"
+              >
+                <span class="icon is-small">
+                  <i class="fas fa-edit"></i>
+                </span>
+                <span>Edit</span>
+              </button>
+          <div class="modal" :class="{ 'is-active': isEditing }">
+    <div class="modal-background" @click="isEditing = false"></div>
+    <div class="modal-card">
+      <header class="modal-card-head">
+        <p class="modal-card-title">Edit Activity</p>
+        <button class="delete" aria-label="close" @click="isEditing = false"></button>
+      </header>
+      <section class="modal-card-body">
+        <div class="field">
+          <label class="label">Exercise Type</label>
+          <input class="input" type="text" v-model="editedActivity.type">
+        </div>
+        <div class="field">
+          <label class="label">Location</label>
+          <input class="input" type="text" v-model="editedActivity.location">
+        </div>
+        <div class="field">
+          <label class="label">Duration (minutes)</label>
+          <input class="input" type="number" v-model="editedActivity.duration">
+        </div>
+         <div class="field">
+          <label class="label">Distance (km)</label>
+          <input class="input" type="number" v-model="editedActivity.distance" step="0.01">
+        </div>
+        <div class="field">
+          <label class="label">Date</label>
+          <input class="input" type="date" v-model="editedActivity.date">
+        </div>
+      </section>
+      <footer class="modal-card-foot">
+        <button 
+          class="button is-success" 
+          @click="saveActivity()" 
+          :class="{'is-loading': isSaving}"
+        >
+          Save changes
+        </button>
+        <button class="button" @click="isEditing = false">Cancel</button>
+      </footer>
+    </div>
+  </div>
+        <button 
+            class="button is-danger is-small mt-2" 
+            @click="deleteActivity(activity.id)" 
+            :disabled="isDeleting === activity.id"
+          >
+            <span class="icon is-small">
+              <i class="fas fa-trash-alt"></i>
+            </span>
+            <span>Delete</span>
+          </button>
         <div class="activity-details mt-3">
           <div class="activity-item">
             <p>EXERCISE TYPE</p>
@@ -46,16 +105,19 @@
 
 <script setup lang="ts">
 import {ref} from 'vue'
-import {getAll as getAllActivities, type Activity} from '@/models/activity'
+import {getAll as getAllActivities,remove as removeActivity,update as updateActivity, type Activity} from '@/models/activity'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import Statistic from '@/components/Statistic.vue'
 dayjs.extend(realTime)
 
-
 const allActivities = ref({ items: [] } as unknown as {items: Activity[], total: number})
 const loadingActivities = ref(true)
 const activitiesError = ref('')
+const isDeleting = ref<number | null>(null)
+const isEditing = ref(false)
+const isSaving = ref(false)
+
 
 getAllActivities()
   .then((response) => {
@@ -87,6 +149,64 @@ function refreshActivities() {
       loadingActivities.value = false
     })
 }
+const editedActivity=ref<Activity>({
+  type: '',
+  duration: 0,
+  distance: 0,
+  date: dayjs().format('YYYY-MM-DD'),
+  location: ''
+})
+async function editActivity(activity : Activity){
+    editedActivity.value = {
+      ...activity,
+      date: dayjs(activity.date).format('YYYY-MM-DD')
+    }
+    isEditing.value = true
+}
+function saveActivity() {
+  isSaving.value = true
+  
+  const updatedActivity = {
+    ...editedActivity.value,
+    date: dayjs(editedActivity.value.date).toISOString()
+  }
+  
+  updateActivity(updatedActivity)
+    .then(() => {
+      isEditing.value = false
+      refreshActivities() 
+    })
+    .catch(error => {
+      console.error('Error updating activity:', error)
+      alert('Failed to update activity')
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
+}
+
+async function deleteActivity(id?: number){
+  if (!id) {
+    console.error('Cannot delete activity: ID is undefined')
+    return
+  }
+  
+  if (confirm('Are you sure you want to delete this activity?')) {
+    isDeleting.value = id
+    
+    try {
+      await removeActivity(id)
+      console.log('Activity deleted successfully:', id)
+      refreshActivities()
+    } catch (err) {
+      console.error('Error deleting activity:', err)
+      alert('Failed to delete activity. Please try again.')
+    } finally {
+      isDeleting.value = null
+    }
+  }
+}
+
 </script>
 
 <style scoped>
@@ -137,5 +257,14 @@ function refreshActivities() {
 .my-4 {
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+.button.is-danger.is-small {
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
 }
 </style>

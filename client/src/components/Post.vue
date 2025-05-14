@@ -15,7 +15,7 @@
             <i class="fas fa-heading"></i>
           </span>
         </div>
-          <label class="label">Exercise Type</label>
+          <label class="label">Activity Type</label>
           <div class="control has-icons-left">
             <input 
               class="input" 
@@ -122,8 +122,8 @@
   import dayjs from 'dayjs'
   import realTime from 'dayjs/plugin/relativeTime'
   import { useSession } from '@/models/session'
-  import { getAll as getPost, type Post } from '@/models/posts'
-  import { create } from '@/models/posts'
+  import { getAll as getPost,create as createPostApi, type Post } from '@/models/posts'
+
   
   dayjs.extend(realTime)
   
@@ -141,60 +141,65 @@
   
   const isSubmitting = ref(false)
   
-  const recentActivity = ref<Post[]>([])
+  const recentPost = ref<Post[]>([])
   
   getPost().then((response) => {
-    recentActivity.value = response.items
+    recentPost.value = response.items
   })
   
-  async function addPost() {
-    if (!currentUser) {
-      alert('You must be logged in to create a activity.')
-      return
-    }
-  
-    const post = {
-      ...newPost.value,
-      userId: currentUser.id,
-      username: currentUser.username,
-      createdAt: dayjs().toISOString(),
-      location: newPost.value.location || ''
-    } as Post
-  
-    try {
-      const response = await create(post)
-      console.log('Activity created successfully:', response)
-      
-      newPost.value = {
-        title: '',
-        type: '',
-        duration: 0,
-        distance: 0,
-        date: dayjs().format('YYYY-MM-DD'),
-        location: ''
-      }
-    } catch (error) {
-      console.error('Error creating post:', error)
-      alert('Failed to create post. Please try again.')
-    }
+  async function createPost(post: Post) {
+  try {
+    const response = await createPostApi(post)
+    console.log('Post created:', response)
+    return response
+  } catch (error) {
+    console.error('Error creating post:', error)
+    throw error
+  }
+}
+
+async function submitPost() {
+  if (!currentUser) {
+    alert('You must be logged in to create a post.')
+    return
   }
   
+  isSubmitting.value = true
+    const postedPost: Post = {
+    title: newPost.value.title || '',
+    id: -1,
+    userId: currentUser.id,
+    username: currentUser.username,
+    type: newPost.value.type || '',
+    duration: newPost.value.duration || 0,
+    date: newPost.value.date ? dayjs(newPost.value.date).toISOString() : dayjs().toISOString(),
+    distance: newPost.value.distance || 0,
+    location: newPost.value.location || ''
+  } 
+  console.log('Creating new post:', currentUser.id)
+    try {
+    await createPost(postedPost)
+    newPost.value = {
+      title: '',
+      type: '',
+      duration: 0,
+      distance: 0,
+      date: dayjs().format('YYYY-MM-DD'),
+      location: ''
+    }
     
-  async function submitPost() {
-    if (!currentUser) {
-      alert('You must be logged in to create a post.')
-      return
-    }
-    isSubmitting.value = true
-    try {
-      await addPost()
-    } catch (error) {
-      console.error('Error submitting form:', error)
-      alert('Something went wrong. Please try again.')
-    } finally {
-      isSubmitting.value = false
-    }
+    getPost().then((response) => {
+      recentPost.value = response.items
+    })
+    
+  } catch (error) {
+    console.error('Error submitting form:', error)
+    alert('Something went wrong. Please try again.')
+  } finally {
+    isSubmitting.value = false
   }
+}
+  
   </script>
   
   <style scoped>

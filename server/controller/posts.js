@@ -37,11 +37,11 @@ router
       })
       .catch(next);
   })
-  .delete("/:postsId", (req, res, next) => {
-    const { post_id } = req.params;
+  .delete("/:id", (req, res, next) => {
+    const { id } = req.params;
 
     model
-      .remove(posts_id)
+      .remove(id)
       .then((data) => {
         res.send(data);
       })

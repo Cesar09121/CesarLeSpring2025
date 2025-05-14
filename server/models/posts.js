@@ -46,43 +46,50 @@ async function get(
   };
 }
 
-async function create(item) {
-  if (!isAdmin) {
-    throw CustomError(
-      "Sorry, you are not authorized to create a new item",
-      statusCodes.UNAUTHORIZED
-    );
+async function create(post) {
+  try{
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .insert(post)
+      .select("*");
+    if (error) throw error;
+    return data[0];
+   } catch (error) {
+      console.error("Error in create post:", error);
+      throw error;
+    } 
+    
   }
-  const { data: newItem, error } = await connect()
-    .from(TABLE_NAME)
-    .insert(item)
-    .select("*");
-  if (error) {
+
+async function remove(id) {
+  try{
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .delete()
+      .eq("id", id)
+      .select("*");
+    if (error) throw error;
+    return data[0];
+  }catch (error) {
+    console.error(`Error in remove post ${id}:`, error);
     throw error;
   }
-  return newItem;
 }
-
-async function remove(post_id) {
-  if (!isAdmin) {
-    throw CustomError(
-      "Sorry, you are not authorized to delete this item",
-      statusCodes.UNAUTHORIZED
-    );
-  }
-  const { data: deletedItem, error } = await connect()
-    .from(TABLE_NAME)
-    .delete()
-    .eq("post_id", post_id)
-    .select("*");
-
-  console.log(data);
-  if (error) {
+async function update(id, post) {
+  try {
+    const { data, error } = await connect()
+      .from(TABLE_NAME)
+      .update(post)
+      .eq("id", id)
+      .select("*");
+      
+    if (error) throw error;
+    return data[0];
+  } catch (error) {
+    console.error(`Error in update post ${id}:`, error);
     throw error;
   }
-  return deletedItem;
 }
-
 async function seed() {
   const { data: users } = await connect().from("users").select("*");
 
@@ -119,4 +126,5 @@ module.exports = {
   create,
   remove,
   seed,
+  update
 };

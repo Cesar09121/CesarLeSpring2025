@@ -3,7 +3,7 @@ import { api } from './session'
 
 export interface Post {
   title: string
-  postId: number
+  id: number
   userId: number
   username: string
   type: string
@@ -11,7 +11,6 @@ export interface Post {
   date: string
   distance: number
   location: string
-  email: string
 }
 
 export function get(id: number): Promise<DataListEnvelope<Post>> {
@@ -22,16 +21,12 @@ export function getAll(): Promise<DataListEnvelope<Post>> {
   return api('posts')
 }
 
-export function create(data: Post) {
-  return api<Post>('posts', data)
+export function create(post: Post) {
+  return api<Post>('posts', post)
 }
-
-export function remove(postId: number) {
-  return api<Post>(`posts/${postId}`, undefined, 'DELETE')
+export function remove(id: number) {
+  return api<Post>(`posts/${id}`, undefined, 'DELETE')
 }
-export function deletePost(postId: number) {
-  return api<Post>(`posts/${postId}`, undefined, 'DELETE')
-}
-export function update(postId: number, data: Post) {
-  return api<Post>(`posts/${postId}`, data, 'PUT')
+export function update(post: Post) {
+  return api<Post>(`posts/${post.id}`, post, 'PATCH')
 }

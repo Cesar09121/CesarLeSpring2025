@@ -1,59 +1,71 @@
 <template>
-  <div class="container">
-    <h1 class="title">Admin Page</h1>
-    <table class="table is-fullwidth is-striped">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Full Name</th>
-          <th>Email</th>
-          <th>Admin</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="userItem in users.items" :key="userItem.userId">
-          <td>{{ userItem.username }}</td>
-          <td>{{ userItem.name }}</td>
-          <td>{{ userItem.email }}</td>
-          <td>{{ userItem.role === 'admin' ? 'admin' : 'user' }}</td>
-          <td>
-            <button class="button is-small is-info" @click="editUser(userItem)">Edit</button>
-            <button class="button is-small is-danger" @click="deleteUser(userItem.id)">
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div v-if="showForm" class="modal-card-body">
+  <div class="admin">
+    <h1 class="title">User Management</h1>
+    
+    <div v-if="users.items && users.items.length > 0">
+      <table class="table is-fullwidth">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="user in users.items" :key="user.id">
+            <td>{{ user.username }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+              <div class="buttons">
+                <button class="button is-info is-small" @click="editUser(user)">Edit</button>
+                <button 
+                  class="button is-danger is-small" 
+                  @click="deleteUser(user.id)"
+                  v-if="isAdmin()"
+                >Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div v-if="showForm && editingUser" class="box edit-form mt-4">
       <h2 class="subtitle">Edit User</h2>
       <form @submit.prevent="submitUpdate">
         <div class="field">
-          <label class="label">Username</label>
-          <div class="control">
-            <input class="input" v-model="editingUser.username" type="text" required />
-          </div>
-        </div>
-        <div class="field">
           <label class="label">Full Name</label>
           <div class="control">
-            <input class="input" v-model="editingUser.name" type="text" required />
+            <input class="input" type="text" v-model="editingUser.name" required>
           </div>
         </div>
+        
         <div class="field">
-          <label class="label">Email</label>
-          <div class="control">
-            <input class="input" v-model="editingUser.email" type="email" required />
+          <label class="label">Password</label>
+          <div class="control has-icons-right">
+            <input 
+              class="input" 
+              :type="showPassword ? 'text' : 'password'" 
+              v-model="editingUser.password" 
+              placeholder="Leave blank to keep current password"
+            >
+            <span class="icon is-right is-clickable" @click="showPassword = !showPassword">
+              <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </span>
           </div>
+          <p class="help">Enter a new password or leave blank to keep the current one</p>
         </div>
-        <div class="field">
-        </div>
-        <div class="field">
+        
+        <div class="field is-grouped">
           <div class="control">
-            <input class="button is-link" type="submit" id="submit" value="Save"></input>
-            <button class="button" type="button" @click="showForm = false">Cancel</button>
+            <button type="submit" class="button is-link">Save</button>
+          </div>
+          <div class="control">
+            <button type="button" class="button" @click="showForm = false">Cancel</button>
           </div>
         </div>
       </form>
@@ -65,55 +77,103 @@
 import { ref, onMounted } from 'vue'
 import { getAll, type User, update, remove } from '@/models/user'
 import type { DataListEnvelope } from '@/models/dataEnvelopes'
+import { isAdmin } from '@/models/session'
 
 const users = ref({} as DataListEnvelope<User>)
-const editingUser = ref({} as User)
+const editingUser = ref<User | null>(null)
 const showForm = ref(false)
+const showPassword = ref(false)
 
 onMounted(async () => {
   fetchUsers()
 })
 
 async function fetchUsers() {
-  console.log('Fetching users...')
   try {
     users.value = await getAll()
+
   } catch (err) {
     console.error('Error loading users:', err)
   }
 }
 
 function editUser(user: User) {
-  editingUser.value = JSON.parse(JSON.stringify(user))
+  console.log('Original user to edit:', user)
+
+  editingUser.value = {
+    ...JSON.parse(JSON.stringify(user)),
+    password: ''
+  }
+  
+  console.log('Prepared user for editing:', editingUser.value)
   showForm.value = true
 }
 
 async function updateUser() {
-  console.log(editingUser)
-  if (editingUser) {
-    await update(editingUser.value)
+  if (!editingUser.value) return
+  
+  console.log('User before update:', editingUser.value)
+  
+  try {
+    const updateData: Partial<User> = {
+      id: editingUser.value.id,
+      name: editingUser.value.name
+    }
+    
+    if (editingUser.value.password && editingUser.value.password.trim()) {
+      updateData.password = editingUser.value.password.trim()
+    }
+    
+    console.log('Sending update with data:', updateData)
+    
+    await update(updateData as User)
     await fetchUsers()
+    if (users.value && users.value.items) {
+      const userIndex = users.value.items.findIndex(u => u.id === editingUser.value?.id)
+      if (userIndex !== -1) {
+        users.value.items[userIndex].name = editingUser.value.name
+      }
+    }
+    
+    showForm.value = false
+    editingUser.value = null
+    
+  } catch (error) {
+    console.error('Error updating user:', error)
+    alert('Failed to update user. Please try again.')
   }
 }
 
 async function submitUpdate() {
   await updateUser()
-  showForm.value = false
 }
 
-async function deleteUser(userId: number) {
-  try {
-    const response = await remove(userId)
-    console.log('User deleted:', response)
-    await fetchUsers()
-  } catch (err) {
-    console.error('Error deleting user:', err)
+async function deleteUser(id: number) {
+  if(!isAdmin()) {
+    alert('You do not have permission to delete users.')
+    return
+  } 
+  
+  if (confirm('Are you sure you want to delete this user?')) {
+    try {
+      const response = await remove(id)
+      console.log('User deleted:', response)
+      await fetchUsers()
+    } catch (err) {
+      console.error('Error deleting user:', err)
+      alert('Failed to delete user')
+    }
   }
 }
 </script>
 
 <style scoped>
-.admin {
-  padding-bottom: 2rem;
+.edit-form {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.is-clickable {
+  cursor: pointer;
 }
 </style>

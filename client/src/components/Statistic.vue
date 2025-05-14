@@ -109,7 +109,7 @@ import { ref } from 'vue'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import { useSession } from '@/models/session'
-import { getAll as getActivity, update, create as createActivityApi, type Activity } from '@/models/activity'
+import { getAll as getActivity, create as createActivityApi, type Activity } from '@/models/activity'
 
 dayjs.extend(realTime)
 
@@ -144,58 +144,6 @@ async function createActivity(activity: Activity) {
   }
 }
 
-async function updateActivity() {
-  if (!currentUser) return;
- 
-  const existingActivity = recentActivity.value.find((activity) => activity.userId === currentUser.id);
-  
-  if (existingActivity) {
-    const postedActivity: Activity = {
-      id: existingActivity.id,
-      type: newActivity.value.type || '',
-      location: newActivity.value.location || '',
-      duration: newActivity.value.duration || 0,
-      userId: currentUser.id,
-      date: newActivity.value.date ? dayjs(newActivity.value.date).toISOString() : dayjs().toISOString(),
-      distance: newActivity.value.distance || 0
-    };
-    
-    console.log('Updating existing workout:', postedActivity);
-    try {
-      const response = await update(postedActivity);
-      console.log('Update response:', response);
-      const updatedActivities = await getActivity();
-      if (updatedActivities && updatedActivities.items) {
-        recentActivity.value = updatedActivities.items;
-      }
-    } catch (error) {
-      console.error('Error updating activity:', error);
-    }
-  } else if (currentUser) {
-    const activityData = {
-      id: -1,
-      type: newActivity.value.type || '',
-      location: newActivity.value.location || '',
-      duration: newActivity.value.duration || 0,
-      userId: currentUser.id,
-      date: newActivity.value.date ? dayjs(newActivity.value.date).toISOString() : dayjs().toISOString(),
-      distance: newActivity.value.distance || 0
-    } as Activity;
-    
-    console.log('Creating new activity:', activityData);
-    try {
-      const response = await createActivity(activityData);
-      console.log('Create response:', response);
-      
-      const updatedActivities = await getActivity();
-      if (updatedActivities && updatedActivities.items) {
-        recentActivity.value = updatedActivities.items;
-      }
-    } catch (error) {
-      console.error('Error creating activity:', error);
-    }
-  }
-}
   
 async function submitActivity() {
   if (!currentUser) {

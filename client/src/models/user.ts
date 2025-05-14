@@ -19,8 +19,9 @@ export function getAll(): Promise<DataListEnvelope<User>> {
 export function get(userId: number): Promise<User> {
   return api(`users/${userId}`);
 }
-export function update(data: User): Promise<User> {
-  return api<User>(`users/${data.userId}`, 'PATCH');
+export function update(user: User): Promise<User> {
+  const id = user.id || user.userId;
+  return api<User>(`users/${id}`, user,'PATCH');
 }
 export function create(data: User) {
   return api<User>('users', data)

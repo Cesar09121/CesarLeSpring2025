@@ -1,22 +1,22 @@
 <template>
   <h1 class="title is-3">All Posts</h1>
-  <Post @activity-added="refreshPost" />
+  <PostForm @activity-added="refreshPost" />
 
   <div>
-    <div v-if="loading" class="has-text-centered">
+    <div v-if="loadingPost" class="has-text-centered">
       <progress class="progress is-primary" max="100"></progress>
     </div>
     
-    <div v-else-if="error" class="notification is-danger">
-      {{ error }}
+    <div v-else-if="PostError" class="notification is-danger">
+      {{ PostError}}
     </div>
     
-    <div v-else-if="!posts.items || posts.items.length === 0" class="notification is-info">
+    <div v-else-if="!allPost.items || allPost.items.length === 0" class="notification is-info">
       No activities found.
     </div>
     
     <ul v-else>
-      <li v-for="(post, index) in posts.items" :key="index">
+      <li v-for="(post, index) in allPost.items" :key="index">
         <div class="box">
           <article class="media">
             <div class="media-left">
@@ -30,10 +30,10 @@
               <div class="content">
                 <p>
                   <strong>{{ post.username }}</strong>
-                  &nbsp; <small>@{{ post.email }}</small> &nbsp;
-                  <small>{{ formatDate(post.date) }}</small>
+                  <small class="ml-2">{{ formatDate(post.date) }}</small>
                   <br />
                 </p>
+                
                 <h4>{{ post.title }}</h4>
                 <div class="post-details">
                   <div>
@@ -71,6 +71,26 @@
                       <i class="fas fa-heart" aria-hidden="true"></i>
                     </span>
                   </a>
+                   <button 
+                    class="button is-info is-small fixed-width-btn"
+                    @click="editPost(post)"
+                    v-if="currentUser && (post.userId === currentUser.id || currentUser.role === 'admin')"
+                  >
+                    <span class="icon is-small">
+                      <i class="fas fa-edit" aria-hidden="true"></i>
+                    </span>
+                    <span>Edit</span>
+                  </button>
+                   <button 
+                  class="button is-danger is-small"
+                  @click.prevent="deletePost(post.id)"
+                  :disabled="isDeleting === post.id"
+                  > 
+                 <span class="icon is-small">
+                 <i class="fas fa-trash" aria-hidden="true"></i>
+                  </span>
+                 <span>{{ isDeleting === post.id ? 'Deleting...' : 'Delete' }}</span>
+                </button>
                 </div>
               </nav>
             </div>
@@ -78,36 +98,94 @@
         </div>
       </li>
     </ul>
+    <div class="modal" :class="{ 'is-active': isEditing }">
+      <div class="modal-background" @click="cancelEdit"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Edit Post</p>
+          <button class="delete" aria-label="close" @click="cancelEdit"></button>
+        </header>
+        <section class="modal-card-body">
+          <div class="field">
+            <label class="label">Title</label>
+            <div class="control">
+              <input class="input" type="text" v-model="editedPost.title" required>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label class="label">Exercise Type</label>
+            <div class="control">
+              <input class="input" type="text" v-model="editedPost.type" required>
+            </div>
+          </div>
+          <div class="field">
+            <label class="label">Location</label>
+            <div class="control">
+              <input class="input" type="text" v-model="editedPost.location">
+            </div>
+          </div>
+          
+          <div class="columns">
+            <div class="column">
+              <div class="field">
+                <label class="label">Duration (minutes)</label>
+                <div class="control">
+                  <input class="input" type="number" v-model="editedPost.duration" min="1" required>
+                </div>
+              </div>
+            </div>
+            <div class="column">
+              <div class="field">
+                <label class="label">Distance (km)</label>
+                <div class="control">
+                  <input class="input" type="number" v-model="editedPost.distance" min="0" step="0.01" required>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="field">
+            <label class="label">Date</label>
+            <div class="control">
+              <input class="input" type="date" v-model="editedPost.date">
+            </div>
+          </div>
+        </section>
+        <footer class="modal-card-foot">
+          <button 
+            class="button is-success" 
+            @click="savePost" 
+            :class="{ 'is-loading': isSaving }"
+          >
+            Save changes
+          </button>
+          <button class="button" @click="cancelEdit">Cancel</button>
+        </footer>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { DataListEnvelope } from '@/models/dataEnvelopes'
-import { getAll as getAllPost, type Post } from '@/models/posts'
+import { getAll as getAllPost,remove as removePost, type Post,update as updatePost } from '@/models/posts'
 import dayjs from 'dayjs'
 import realTime from 'dayjs/plugin/relativeTime'
 import { ref } from 'vue'
+import PostForm from '@/components/Post.vue'
+import { useSession } from '@/models/session'
 
 dayjs.extend(realTime)
+const session = useSession()
+const currentUser = session.value.user
 
-const posts = ref({} as DataListEnvelope<Post>)
-const loading = ref(true)
-const error = ref('')
-
-getAllPost()
-  .then((response) => {
-    posts.value = response
-    loading.value = false
-  })
-  .catch((err) => {
-    console.error('Error fetching posts:', err)
-    error.value = 'Failed to load activities. Please try again.'
-    loading.value = false
-  })
 
 const allPost = ref({ items: [] } as unknown as {items: Post[], total: number})
 const loadingPost = ref(true)
-const activitiesError = ref('')
+const PostError = ref('')
+const isDeleting = ref<number | null>(null)
+const isEditing = ref(false)
+const isSaving = ref(false)
 
 getAllPost()
   .then((response) => {
@@ -117,7 +195,7 @@ getAllPost()
   })
   .catch((err) => {
     console.error("Error loading all posts:", err)
-    activitiesError.value = "Failed to load all posts. Please try again."
+    PostError.value = "Failed to load all posts. Please try again."
     loadingPost.value = false
   })
 
@@ -135,9 +213,75 @@ function refreshPost() {
     })
     .catch((err) => {
       console.error("Error loading all posts:", err)
-      error.value = "Failed to load all activities. Please try again."
+      PostError.value = "Failed to load all activities. Please try again."
       loadingPost.value = false
     })
+}
+const editedPost = ref<Post>({
+  id: 0,
+  userId: 0,
+  username: '',
+  date: '',
+  title: '',
+  type: '',
+  duration: 0,
+  distance: 0,
+  location: ''
+})
+function editPost(post: Post) {
+  editedPost.value ={
+    ...post,
+   date: post.date ? dayjs(post.date).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD')
+  }
+  isEditing.value = true
+}
+async function savePost(){
+   isSaving.value = true
+    const updatedPost = {
+      ...editedPost.value,
+      date: dayjs(editedPost.value.date).toISOString()
+    }
+    updatePost(updatedPost)
+    .then(() => {
+      isEditing.value = false
+      refreshPost() 
+    })
+    .catch(error => {
+      console.error('Error updating post:', error)
+      alert('Failed to update post')
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
+}
+function cancelEdit() {
+  isEditing.value = false
+}
+
+async function deletePost(id?: number){
+  if (!id){
+    console.error('Cannot delete post: ID is undefined')
+    return
+  }
+    const post = allPost.value.items.find(p => p.id === id)
+ if (post && currentUser && (post.id === currentUser.id || currentUser.role === 'admin')) {
+    if (confirm('Are you sure you want to delete this post?')) {
+      isDeleting.value = id
+      
+      try {
+        await removePost(id)
+        console.log('Post deleted successfully:', id)
+        refreshPost()
+      } catch (err) {
+        console.error('Error deleting post:', err)
+        alert('Failed to delete post. Please try again.')
+      } finally {
+        isDeleting.value = null
+      }
+    }
+  } else {
+    alert('You can only delete your own posts.')
+  }
 }
 </script>
 
