@@ -97,8 +97,43 @@
               <i class="fas fa-route"></i>
             </span>
           </div>
+           <div class="message is-link" v-show="showAddUser">
+                <div class="message-body">
+                    <form @submit.prevent="() => showAddUser = false">
+                        <div class="field">
+                            <div class="control">
+                                <o-autocomplete
+                                                v-model="newPost"
+                                                :options="options"
+                                                backend-filtering
+                                                :debounce="500"
+                                                @input="getAsyncData"
+                                                placeholder="Select a friend"
+                                                icon="search"
+                                                clearable
+                                                open-on-focus>
+                                                 <template #default="{ value }">
+                                        <div class="media">
+                                            <div class="media-left">
+                                                <img
+                                                     width="32"
+                                                     :src="value.thumbnail" />
+                                            </div>
+                                            <div class="media-content">
+                                                {{ value.name }}
+                                                <br />
+                                            </div>
+                                        </div>
+                                    </template>
+                                </o-autocomplete>
+                            </div>
+                        </div>
+                        <button type="submit" class="button is-primary">Add Friend</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        
+       
         <div class="field mt-4">
           <div class="control">
             <button 
@@ -123,10 +158,26 @@
   import realTime from 'dayjs/plugin/relativeTime'
   import { useSession } from '@/models/session'
   import { getAll as getPost,create as createPostApi, type Post } from '@/models/posts'
-
+  import {search, User} from '@/models/user'
   
   dayjs.extend(realTime)
   
+
+const options = ref<{
+  value: User;
+  label: string;
+}[]>([])
+async function getAsyncData(value: string) {
+
+    const response = await search(value);
+    options.value = response.items.map((user) => ({
+        value: user,
+        label: user.name
+    }));
+}
+
+
+
   const session = useSession()
   const currentUser = session.value.user
   
@@ -140,6 +191,7 @@
   })
   
   const isSubmitting = ref(false)
+  const showAddUser = ref(false)
   
   const recentPost = ref<Post[]>([])
   

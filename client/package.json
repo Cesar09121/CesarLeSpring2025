@@ -13,6 +13,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@oruga-ui/oruga-next": "^0.10.5",
+    "@oruga-ui/theme-oruga": "^0.6.0",
     "@supabase/supabase-js": "^2.49.4",
     "buefy": "npm:@ntohq/buefy-next@^0.2.0",
     "bulma": "^1.0.3",

@@ -163,6 +163,19 @@ async function seed(){
     );
   }
 }
+async function search(query, limit = 30, offset = 0, sort = 'id', order = 'desc'){
+    const { data: items, error, count } = await BaseQuery()
+    .or(`name.ilike.%${query}%`)
+    .order(sort, { ascending: order === 'asc' })
+    .range(offset, offset + limit -1)
+    if (error) {
+        throw error
+    }
+    return {
+        items,
+        total: count
+    }
+} 
 
 module.exports = {
   getAll,

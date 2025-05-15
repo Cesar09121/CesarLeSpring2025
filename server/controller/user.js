@@ -57,6 +57,16 @@ router
             console.error('Seed error:', error);
             next(error);
         }
+    })
+    .get('search', async (req, res, next) => {
+        try {
+            const { username } = req.query
+            const result = await model.search(username)
+            res.status(200).json(result)
+        } catch (error) {
+            console.error('Search error:', error)
+            next(error)
+        }
     });
 
     

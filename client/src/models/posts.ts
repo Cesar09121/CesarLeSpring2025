@@ -30,3 +30,6 @@ export function remove(id: number) {
 export function update(post: Post) {
   return api<Post>(`posts/${post.id}`, post, 'PATCH')
 }
+export function search(query: string, limit = 10, offset = 0) {
+  return api<DataListEnvelope<Post>>(`posts/search/${query}?offset=${offset}&limit=${limit}`)
+}

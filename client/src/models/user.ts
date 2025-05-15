@@ -32,6 +32,9 @@ export function remove(userId: number): Promise<void> {
 export function login({username, password } :{username : string, password : string}) {
   return api<LoginResponse>('auth/login', {username, password })
 }
+export function search(query: string, limit = 10, offset = 0) {
+  return api<DataListEnvelope<User>>(`users/search/${query}?offset=${offset}&limit=${limit}`)
+}
 
 
 
