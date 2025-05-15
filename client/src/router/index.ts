@@ -5,6 +5,7 @@ import LoginPage from '../pages/LoginPage.vue'
 import RegisterPage from '@/pages/RegisterPage.vue'
 import StatisticsPage from '../pages/StatisticPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import SearchUser from '@/pages/SearchUser.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -40,6 +41,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'admin',
     component: AdminPage,
     meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/search',
+    name: 'search',
+    component: SearchUser,
+    meta: { requiresAuth: true }
   }
 
 ]
